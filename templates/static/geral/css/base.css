@@ -1,0 +1,27 @@
+a:link {
+    text-decoration: none;
+}
+
+a:visited {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+body {
+    background-color: #e9ecef;
+}
+/* Estilo padrão dos cards */
+.contrato-card {
+    transition: all 0.3s ease; /* animação suave */
+    
+}
+
+/* Ao passar o mouse */
+.contrato-card:hover {
+    background-color: #fffaf0;
+    transform: translateY(-3px); /* leve elevação do card */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2); /* sombra mais intensa */
+}

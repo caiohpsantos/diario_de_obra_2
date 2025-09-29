@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block conteudo %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4>Cadastrar Nova Obra</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" action="{% url 'cadastra_obra' %}">
+                        {% csrf_token %}
+
+                         <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_situacao" class="form-label">Situação</label>
+                                {{ form.situacao }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_contrato" class="form-label">Contrato Vinculado</label>
+                                {{ form.contrato }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_nome" class="form-label">Nome da Obra</label>
+                            {{ form.nome }}
+                             {% if form.nome.errors %}
+                                <div class="text-danger small">
+                                    {{ form.nome.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_local" class="form-label">Local</label>
+                            {{ form.local }}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_inicio" class="form-label">Data de Início</label>
+                                {{ form.inicio }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_termino" class="form-label">Previsão de Término</label>
+                                {{ form.termino }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_empresa_responsavel" class="form-label">Empresa Responsável</label>
+                            {{ form.empresa_responsavel }}
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'controle_obras' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Voltar
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block conteudo %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Controle de Contratos</h2>
+    <a class="btn btn-primary btn-sm" href="{% url 'cadastra_contrato' %}">
+      <i class="bi bi-folder-plus"></i> Novo Contrato
+    </a>
+  </div>
+
+  <!-- Tabela ou cards de contratos -->
+  <div class="row g-3">
+    {% for contrato in contratos %}
+    <div class="col-12 col-lg-4">
+      <div class="card contrato-card shadow-sm h-100">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">{{ contrato.numero }}: {{ contrato.nome }}</h5>
+          <p class="mb-1"><strong>Cliente:</strong> {{ contrato.cliente }}</p>
+          <p class="mb-1"><strong>Status:</strong>
+            {% if contrato.ativo %}
+              <span class="badge bg-success">Ativo</span>
+            {% else %}
+              <span class="badge bg-secondary">Inativo</span>
+            {% endif %}
+          </p>
+          <p class="mb-1"><strong>Período:</strong> Dia {{ contrato.dia_inicia_relatorio }} → Dia {{ contrato.dia_finaliza_relatorio }}</p>
+
+          <hr>
+
+          <div class="mt-auto d-flex justify-content-between">
+            <a href="{% url 'visualiza_contrato' contrato.id %}" class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-eye"></i> Visualizar
+            </a>
+            <a href="{% url 'edita_contrato' contrato.id %}" class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-pencil"></i> Editar
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <div class="alert alert-info mb-0">
+        Nenhum contrato registrado.
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

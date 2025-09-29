@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block titulo %}Perfil{% endblock%}
+{% block conteudo %}
+<div class="container-sm">
+    <br>
+    <button class="btn btn-primary">
+        <a href="{% url 'pagina_inicial' %}">
+            <i style="color: white;" class="bi bi-house"> Página Inicial</i>
+        </a>
+    </button>
+    <h1 style="padding-top: 5px;" class="d-flex justify-content-center">Perfil de Usuário</h1>
+    <table class="table table-striped">
+        <tbody>
+            <tr>
+                <th>Dados do usuário</th>
+                <th></th>
+            </tr>
+            <tr>
+                <td><b>Usuário:</b> {{user.username}}</td>
+
+            </tr>
+            <tr>
+                <td><b>Nome:</b> {{user.first_name}}</td>
+
+            </tr>
+            <tr>
+                <td><b>Sobrenome:</b> {{user.last_name}}</td>
+
+            </tr>
+            <tr>
+                <td><b>Email:</b> {{user.email}}</td>
+            </tr>
+            <tr>
+                <td><b>Administrador:</b>
+                    {% if user.is_staff or user.is_superuser %}
+                    Sim
+                    {% else %}
+                    Não
+                    {% endif %}
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+    <h1 style="padding-top: 5px;" class="d-flex justify-content-center">Opções</h1>
+    <div class="container text-center">
+        <div class="row" style="padding-top: 15px;">
+            <div class="col">
+                <button class="btn btn-primary">
+                    <a style="color: white;" href="{% url 'alterar_dados_usuario' %}">
+                        Atualizar dados pessoais
+                    </a>
+                </button>
+            </div>
+            <div class="col">
+                <button class="btn btn-primary">
+                    <a style="color: white;" href="{% url 'password_reset' %}">
+                        Trocar Senha
+                    </a>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    a:link {
+        text-decoration: none;
+    }
+
+    a:visited {
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: none;
+    }
+</style>
+{% endblock %}

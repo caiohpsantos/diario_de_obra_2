@@ -1,0 +1,3 @@
+adicionar campo em configuraçoes gerais com dados da empresa
+
+usuarios.views.criar_usuario precisa puxar os dados da empresa das config gerais

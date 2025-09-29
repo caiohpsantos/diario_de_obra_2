@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block titulo %}Histórico de Edições{% endblock %}
+
+{% block conteudo %}
+<div class="container mt-4">
+
+    <h3 class="mb-4 text-center">Histórico de Edições - {{ tipo|title }} {{ registro_id }}</h3>
+
+    <div class="historico-container">
+        {% if historico %}
+            {% for edicao in historico %}
+                <div class="card historico-card mb-3">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            {{ edicao.usuario }} - {{ edicao.timestamp|date:"d/m/Y H:i" }}
+                        </h6>
+                        <p class="card-text">{{ edicao.descricao_alteracao }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info text-center">
+                Nenhuma edição registrada.
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="mt-4 text-center">
+        <a href="{% url 'controle_contratos' %}" class="btn btn-secondary">Voltar</a>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block titulo %}Nova senha registrada{% endblock%}
+{% block conteudo %}
+<div class="container-sm">
+    <h1 style="background-color: darkseagreen;">Nova senha registrada.</h1>
+    Você foi deslogado por segurança. Para relogar clique <a href="{% url 'login' %}">aqui.</a>
+    <form method="POST">
+        {% csrf_token %}
+        {{form | crispy}}
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,187 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href={% static "geral/css/bootstrap.min.css" %} rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'geral/css/bootstrap-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'geral/css/base.css' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'geral/img/favicon/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'geral/img/favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'geral/img/favicon/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'geral/img/favicon/site.webmanifest' %}">
+    <link rel="shortcut icon" href="{% static 'geral/img/favicon/favicon.ico' %}">
+    {% block cabecalho %} {% endblock %}
+    <title>{% block titulo %}{%endblock %}</title>
+</head>
+
+<body>
+    <!-- SE USUÁRIO ESTIVER AUTENTICADO MOSTRA ESTE NAVBAR -->
+    {% if user.is_authenticated %}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'pagina_inicial' %}">Rudra Engenharia</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                    <!-- NAVBAR PARA O DIÁRIO -->                   
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLinkDiario" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-calendar-week"> Diário de Obra </i>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLinkDiario">
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="bi bi-calendar-plus"> Novo </i>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                <i class="bi bi-calendar-minus"> Editar </i>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- NAVBAR PARA AS NOTIFICAÇÕES -->  
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLinkNotificacao" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-journal"> Notificações </i>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLinkNotificacao">
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                <i class="bi bi-journal-plus"> Nova </i>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                <i class="bi bi-journal-richtext"> Editar </i>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                <i class="bi bi-journal-check"> Validar </i>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- NAVBAR PARA OS CADASTROS (CONTRATO, OBRA E USUÁRIOS)-->  
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLinkCadastros" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Cadastros
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLinkCadastros">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'controle_contratos' %}">
+                                <i class="bi bi-folder"> Contratos </i>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'controle_obras' %}">
+                                <i class="bi bi-minecart"> Obras </i>
+                                </a>
+                            </li>
+                           
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                <i class="bi bi-people"> Usuários </i>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- NAVBAR PARA OS RELATÓRIOS -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLinkRelatorios" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-file-earmark"> Relatórios </i>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLinkRelatorios">
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="bi bi-file-earmark-richtext"> Diário de Obras </i>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                <i class="bi bi-file-text"> Notificações </i>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    
+                    <!-- NAVBAR PARA AS CONFIGURAÇOES (USUÁRIO DEVE SER ADMINISTRADOR) -->  
+                    {% if user.is_staff or user.is_superuser %}
+                    <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLinkConfiguracoes" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-gear"> Configurações </i>
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLinkConfiguracoes">
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="bi bi-database-gear"> Gerais </i>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#">
+                            <i class="bi bi-journal-code"> Diários </i>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#">
+                            <i class="bi bi-git"> Versão </i>
+                            </a>
+                        </li>
+                    </ul>
+                    </li>
+                    {% endif %}
+                </ul>
+                <!-- NAVBAR PARA AÇÕES DO USUÁRIO -->  
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"> 
+                        <a class="nav-link active" aria-current="page" href="{% url 'perfil_usuario' %}">
+                            <i class="bi bi-person-fill-gear">
+                                {{user}}
+                            </i>
+                        </a>
+                    </li>
+                    <li class="nav-item"> 
+                        <a class="nav-link active" aria-current="page" href="{% url 'logout' %}">
+                            <img src="{% static 'geral/img/logout.svg' %}" alt="Logout" width="20" height="20" class="me-1">
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        </nav>
+    <!--SE USUÁRIO NÃO ESTIVER LOGADO MOSTRA ESSA NAVBAR-->
+    {% else %}
+    
+    {% endif %}
+    <br>
+    <!--MOSTRA MENSAGENS DO SISTEMA NO TOPO DA PÁGINA, ABAIXO DA NAVBAR-->
+    {% if messages %}
+    {% for message in messages %}
+    <div class="container-sm" style="margin-top: 15px;">
+        <div class="{{ message.tags }}" style="text-align: center;">
+            {{ message }}
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+    <!-- PARTE LIBERADA PARA INSERIR CONTEÚDO DAS PÁGINAS ACESSADOS PELOS USUÁRIOS-->
+    {% block conteudo %}
+    {% endblock %}
+    <!--IMPORTAÇÃO JAVASCRIPT DO BOOTSTRAP 5-->
+    <script src= {% static "geral/js/bootstrap.bundle.min.js" %}></script>
+    <!--IMPORTAÇÃO DO JAVASCRIPT PADRÃO DO SISTEMA(LETRAS MAIÚSCULAS, FORMATAÇÃO DE CAMPOS DE TELEFONE,
+        DATA DE NASCIMENTO, CEP, CPNJ E SENHAS)-->
+    <script src="{% static 'geral/js/formatacao.js' %}"></script>
+</body>
+
+</html>

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags static %}
+{% block titulo %}Atualiza Dados Pessoais{% endblock%}
+{% block conteudo %}
+<div class="container-fluid border">
+    <h1 class="d-flex justify-content-center">Atualização dados pessoais do usuário</h1>
+    <button class="btn btn-primary" style="margin-top: 15px;">
+        <a href="{% url 'perfil_usuario' %}">
+            <i class="bi bi-person-badge" style="color: white;"> Voltar ao Perfil</i>
+        </a>
+    </button>
+    <hr>
+    <form method="POST" style="padding-bottom: 15px;">
+        {% csrf_token %}
+        {{ formulario | crispy }}
+
+        <button class="btn btn-primary" type="submit">Enviar</button>
+    </form>
+</div>
+
+{% endblock %}

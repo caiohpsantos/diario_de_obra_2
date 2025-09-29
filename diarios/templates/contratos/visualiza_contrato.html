@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block conteudo %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Visualizar Contrato — {{ contrato.numero }} </h2>
+    <div>
+      <a href="{% url 'edita_contrato' contrato.id %}" class="btn btn-outline-secondary btn-sm me-2" title="Editar contrato">
+        <i class="bi bi-pencil-square"></i> Editar
+      </a>
+      <a href="{% url 'controle_contratos' %}" class="btn btn-outline-primary btn-sm">Voltar</a>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <!-- Coluna ESQUERDA: Informações básicas do contrato -->
+    <div class="col-12 col-lg-3">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Dados do Contrato</h5>
+          <p class="mb-1"><strong>Número:</strong> {{ contrato.numero }}</p>
+          <p class="mb-1"><strong>Nome:</strong> {{ contrato.nome }}</p>
+          <p class="mb-1"><strong>Cliente:</strong> {{ contrato.cliente }}</p>
+          <p class="mb-1"><strong>Status:</strong>
+            {% if contrato.ativo %}<span class="badge bg-success">Ativo</span>{% else %}<span class="badge bg-secondary">Inativo</span>{% endif %}
+          </p>
+          <p class="mb-1"><strong>Período:</strong> Dia {{ contrato.dia_inicia_relatorio }} → Dia {{ contrato.dia_finaliza_relatorio }}</p>
+
+          <hr>
+
+          <h6 class="mb-2">Ações rápidas</h6>
+          <div class="d-grid gap-2">
+            <a class="btn btn-sm btn-outline-success" href="#">
+              <i class="bi bi-building-add"></i> Nova Obra - configurar
+            </a>
+            <a class="btn btn-sm btn-outline-info" href="{% url 'historico_edicoes' 'contrato' contrato.id %}" >
+              <i class="bi bi-clock-history"></i> Ver Histórico
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pequeno painel com contagens -->
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-6 border-end">
+              <div class="h3 mb-0">{{ obras|length }}</div>
+              <small class="text-muted">Obras</small>
+            </div>
+            <div class="col-6">
+              <div class="h3 mb-0">{{ diarios|length }}</div>
+              <small class="text-muted">Diários</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coluna CENTRAL: Lista de obras e diários (principal) -->
+    <div class="col-12 col-lg-6">
+      <!-- Obras -->
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Obras relacionadas</h5>
+          <small class="text-muted">{{ obras|length }} itens</small>
+        </div>
+        <div class="card-body p-2" style="max-height: 320px; overflow:auto;">
+          {% if obras %}
+            <div class="list-group">
+              {% for obra in obras %}
+                <div class="list-group-item d-flex justify-content-between align-items-start">
+                  <div class="ms-2 me-auto">
+                    <div class="fw-bold">{{ obra.nome }}</div>
+                    <small class="text-muted">{{ obra.local }} • {{ obra.inicio }} → {{ obra.termino }}</small>
+                  </div>
+                  <div class="text-end">
+                    <a href="{% url 'visualiza_obra' obra.id %}" class="btn btn-sm btn-outline-primary me-1" title="Abrir obra">
+                      <i class="bi bi-eye"></i>
+                    </a>
+                    <a href="{% url 'edita_obra' obra.id %}" class="btn btn-sm btn-outline-secondary" title="Editar obra">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="text-muted mb-0">Nenhuma obra vinculada a este contrato.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Diários -->
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Diários recentes</h5>
+          <small class="text-muted">{{ diarios|length }} registros</small>
+        </div>
+        <div class="card-body p-2" style="max-height: 320px; overflow:auto;">
+          {% if diarios %}
+            <table class="table table-sm mb-0">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Obra</th>
+                  <th>Turnos</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for d in diarios %}
+                <tr>
+                  <td>{{ d.data|date:"d/m/Y" }}</td>
+                  <td>{{ d.obra.nome }}</td>
+                  <td>
+                    <small class="text-muted">
+                      M: {{ d.clima_manha }} • T: {{ d.clima_tarde }}
+                    </small>
+                  </td>
+                  <td class="text-end">
+                    <a href="{% url 'visualiza_diario' d.id %}" class="btn btn-sm btn-outline-primary">Abrir</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p class="text-muted mb-0">Nenhum diário encontrado para este contrato.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Coluna DIREITA: Histórico e notas -->
+    <div class="col-12 col-lg-3">
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header">
+          <h6 class="mb-0">Histórico</h6>
+        </div>
+        <div class="card-body p-2" style="max-height: 680px; overflow:auto;">
+          {% if historico %}
+            <ul class="list-group list-group-flush">
+              {% for h in historico %}
+                <li class="list-group-item">
+                  <div class="small text-muted">{{ h.timestamp|date:"d/m/Y H:i" }} — {{ h.usuario }}</div>
+                  <div>{{ h.descricao_alteracao }}</div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted mb-0">Sem histórico de edições.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Script para carregar o modal (supondo que partial define #historicoModal e #lista-historico) -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const modalEl = document.getElementById("historicoModal");
+    if (!modalEl) return;
+
+    modalEl.addEventListener("show.bs.modal", function (event) {
+        const button = event.relatedTarget;
+        // permissivo: se botao for undefined, tenta usar contrato atual
+        const tipo = button ? (button.dataset.tipo || 'contrato') : 'contrato';
+        const id = button ? (button.dataset.id || '{{ contrato.id }}') : '{{ contrato.id }}';
+
+        const lista = document.getElementById("lista-historico");
+        if (!lista) return;
+        lista.innerHTML = "<li class='list-group-item'>Carregando...</li>";
+
+        fetch(`/historico/${tipo}/${id}/`)
+          .then(r => r.json())
+          .then(dados => {
+            lista.innerHTML = "";
+            if (!dados.length) {
+              lista.innerHTML = "<li class='list-group-item'>Nenhuma edição registrada.</li>";
+              return;
+            }
+            dados.forEach(item => {
+              const li = document.createElement("li");
+              li.className = "list-group-item";
+              li.innerHTML = `<strong>${item.usuario}</strong> <small class="text-muted">(${item.data})</small><div>${item.descricao}</div>`;
+              lista.appendChild(li);
+            });
+          })
+          .catch(err => {
+            lista.innerHTML = "<li class='list-group-item text-danger'>Erro ao carregar histórico.</li>";
+            console.error(err);
+          });
+    });
+});
+</script>
+{% endblock %}
