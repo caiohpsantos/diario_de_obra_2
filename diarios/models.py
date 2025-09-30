@@ -93,7 +93,7 @@ class Obras(models.Model):
         Attributes:
             return: tempo_restante(string): String contando qto tempo falta para entrega em anos, meses e dias.
         '''
-        prazo_delta = relativedelta(self.termino - date.today())
+        prazo_delta = relativedelta(self.termino, date.today())
         partes = []
         if prazo_delta.years == 1:
             partes.append(f"{prazo_delta.years} ano")

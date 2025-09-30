@@ -170,6 +170,7 @@ def controle_obras(request):
 
     return render(request, 'obras/controle_obras.html', {'contratos':contratos, 'obras':obras})
 
+@login_required
 def cadastra_obra(request):
     '''
     Gera e processa o formulário de cadastrar obra

@@ -12,22 +12,20 @@
     </a>
   </div>
   
-
-
   <!-- Formulário de Pesquisa -->
   <div class="card shadow-sm mb-4">
     <div class="card-body">
-      <form method="get" class="row g-3">
+      <form method="get" class="row g-2 align-items-end">
         <!-- Nome da Obra -->
         <div class="col-md-3">
           <label for="nome_obra" class="form-label fw-semibold">Nome da Obra</label>
-          <input type="text" name="nome_obra" id="nome_obra" class="form-control" placeholder="Digite o nome">
+          <input type="text" name="nome_obra" id="nome_obra" class="form-control form-control-sm" placeholder="Digite o nome">
         </div>
 
         <!-- Contrato -->
         <div class="col-md-3">
           <label for="contrato" class="form-label fw-semibold">Contrato</label>
-          <select name="contrato" id="contrato" class="form-select">
+          <select name="contrato" id="contrato" class="form-select form-select-sm">
             <option value="">-- Todos --</option>
             {% for contrato in contratos %}
               <option value="{{ contrato.id }}">{{ contrato }}</option>
@@ -36,9 +34,9 @@
         </div>
 
         <!-- Situação -->
-        <div class="col-md-3">
+        <div class="col-md-2">
           <label for="situacao" class="form-label fw-semibold">Situação</label>
-          <select name="situacao" id="situacao" class="form-select">
+          <select name="situacao" id="situacao" class="form-select form-select-sm">
             <option value="">-- Todas --</option>
             <option value="andamento">Em andamento</option>
             <option value="concluida">Concluída</option>
@@ -49,17 +47,19 @@
         <!-- Empresa Responsável -->
         <div class="col-md-3">
           <label for="empresa" class="form-label fw-semibold">Empresa Responsável</label>
-          <input type="text" name="empresa" id="empresa" class="form-control" placeholder="Digite a empresa">
+          <input type="text" name="empresa" id="empresa" class="form-control form-control-sm" placeholder="Digite a empresa">
         </div>
 
         <!-- Botão de pesquisa -->
-        <div class="col-12 d-flex justify-content-end">
-          <button type="submit" class="btn btn-primary px-4 mt-3">Pesquisar</button>
+        <div class="col-md-auto">
+          <button type="submit" class="btn btn-primary btn-sm mt-2">Pesquisar</button>
         </div>
       </form>
     </div>
   </div>
 
+
+ 
   <!-- Lista de Obras -->
   <div class="d-flex flex-column gap-3" style="max-height: 70vh; overflow-y: auto;">
     {% for obra in obras %}
@@ -76,10 +76,19 @@
         <!-- Conteúdo central -->
         <h5 class="card-title fw-bold">{{ obra.nome }}</h5>
         <p class="card-text mb-1"><strong>Contrato:</strong> {{ obra.contrato.nome }}</p>
-        <p class="card-text mb-1"><strong>Situação:</strong> {{ obra.get_situacao_display }}</p>
+        <p class="card-text mb-1"><strong>Situação:</strong>
+            <span class="badge 
+              {% if obra.situacao == 'andamento' %} bg-primary
+              {% elif obra.situacao == 'parada' %} bg-danger
+              {% elif obra.situacao == 'concluida' %} bg-success 
+              {% else %} bg-secondary {% endif %}">
+              {{ obra.get_situacao_display }}
+            </span>
+        
+          </p>
         <p class="card-text mb-0"><strong>Empresa Responsável:</strong> {{ obra.empresa_responsavel }}</p>
         <p class="card-text mb-0"><strong>Início:</strong> {{obra.inicio}} / <strong>Término Previsto:</strong> {{obra.termino}}</p>
-        <p class="card-text mb-1"><strong>Tempo Decorrido:</strong> {{obra.tempo_decorrido}} dias / <strong>Prazo de Entrega:</strong> {{obra.prazo_de_entrega}} dias
+        <p class="card-text mb-1"><strong>Tempo Decorrido:</strong> {{obra.tempo_obra}} / <strong>Prazo de Entrega:</strong> {{obra.prazo_entrega}}
 
         <!-- Botão Editar no rodapé -->
         <div class="mt-auto d-flex justify-content-end">
