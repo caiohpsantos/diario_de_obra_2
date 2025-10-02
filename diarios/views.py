@@ -135,8 +135,8 @@ def visualiza_contrato(request, id):
     diarios = Diarios.objects.filter(obra__contrato=contrato).select_related("obra__contrato")
     #Histórico de edição do contrato
     historico = Historico_Edicao.objects.filter(tipo='contrato', tipo_id=id).order_by('-timestamp')
-
-    return render(request, 'contratos/visualiza_contrato.html', {'contrato':contrato,'obras':obras, 'darios':diarios, 'historico':historico})
+    #Inserir pesquisa de notificações quando disponível
+    return render(request, 'contratos/visualiza_contrato.html', {'contrato':contrato,'obras':obras, 'diarios':diarios, 'historico':historico})
 
 #views que lidam com obras
 @login_required
@@ -195,6 +195,23 @@ def cadastra_obra(request):
             
     
     return render(request, 'obras/cadastra_obra.html', {'form':form})
+
+@login_required
+def visualiza_obra(request, id):
+    '''
+    Retorna a obra, seu histórico de edições e os diários e notificações ligadas a ela.
+    '''
+    #dados da obra
+    obra = get_object_or_404(Obras, id=id)
+    #dados de edições
+    historico_edicoes = Historico_Edicao.objects.filter(tipo='obra', tipo_id=obra.id).order_by('-timestamp')
+    #dados de diários
+    diarios = Diarios.objects.filter(obra=obra)
+    
+    #implementar notificações quando disponível
+
+    return render(request, 'obras/visualiza_obra.html', {'obra':obra, 'diarios':diarios, 'historico':historico_edicoes})
+
 
 @login_required
 def edita_obra(request, id):
@@ -271,6 +288,16 @@ def edita_obra(request, id):
 #views que lidam com historico de edições
 @login_required
 def historico_edicoes(request, tipo, id):
-    historico = Historico_Edicao.objects.filter(tipo=tipo, tipo_id = id)
+    historico = Historico_Edicao.objects.filter(tipo=tipo, tipo_id = id).order_by('-timestamp')
+    if tipo == 'contrato':
+        objeto = get_object_or_404(Contratos, id=id)
 
-    return render(request, 'historico_edicoes.html', {'historico':historico})
+    if tipo == 'obra':
+        objeto = get_object_or_404(Obras, id=id)
+
+    if tipo == 'diario':
+        objeto = get_object_or_404(Diarios, id=id)
+    
+    #implementar if de notificações
+
+    return render(request, 'historico_edicoes.html', {'historico':historico, 'tipo':tipo, 'tipo_id':id, 'objeto':objeto})

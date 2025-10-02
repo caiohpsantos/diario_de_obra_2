@@ -5,7 +5,7 @@
 {% block conteudo %}
 <div class="container mt-4">
 
-    <h3 class="mb-4 text-center">Histórico de Edições - {{ tipo|title }} {{ registro_id }}</h3>
+    <h3 class="mb-4 text-center">Histórico de Edições - {{tipo|title}} {{ objeto.nome }}</h3>
 
     <div class="historico-container">
         {% if historico %}
@@ -27,7 +27,16 @@
     </div>
 
     <div class="mt-4 text-center">
-        <a href="{% url 'controle_contratos' %}" class="btn btn-secondary">Voltar</a>
+        {% if tipo == 'contrato' %}
+            <a href="{% url 'controle_contratos' %}" class="btn btn-secondary">Voltar</a>
+        {% elif tipo == 'obra' %}
+            <a href="{% url 'controle_obras' %}" class="btn btn-secondary">Voltar</a>
+        {% elif tipo == 'diario' %}
+            <a href="#" class="btn btn-secondary">Voltar</a>
+        {% else %}
+            <a href="#" class="btn btn-secondary">Voltar</a>
+
+        {% endif %}
     </div>
 
 </div>

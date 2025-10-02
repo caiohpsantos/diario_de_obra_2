@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block conteudo %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Visualizar Obra — {{ obra.nome }}</h2>
+    <div>
+      <a href="{% url 'edita_obra' obra.id %}" class="btn btn-outline-secondary btn-sm me-2" title="Editar obra">
+        <i class="bi bi-pencil-square"></i> Editar
+      </a>
+      <a href="{% url 'controle_obras' %}" class="btn btn-outline-primary btn-sm">Voltar</a>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <!-- Coluna ESQUERDA: Informações básicas da obra -->
+    <div class="col-12 col-lg-3">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Dados da Obra</h5>
+          <p class="mb-1"><strong>Nome:</strong> {{ obra.nome }}</p>
+          <p class="mb-1"><strong>Contrato:</strong> {{ obra.contrato.nome }}</p>
+          <p class="mb-1"><strong>Local:</strong> {{ obra.local }}</p>
+          <p class="mb-1"><strong>Situação:</strong>
+            {% if obra.situacao == "andamento" %}
+              <span class="badge bg-warning text-dark">Em andamento</span>
+            {% elif obra.situacao == "concluida" %}
+              <span class="badge bg-success">Concluída</span>
+            {% elif obra.situacao == "parada" %}
+              <span class="badge bg-danger">Parada</span>
+            {% else %}
+              <span class="badge bg-secondary">{{ obra.get_situacao_display }}</span>
+            {% endif %}
+          </p>
+          <p class="mb-1"><strong>Empresa Responsável:</strong> {{ obra.empresa_responsavel }}</p>
+          <p class="mb-1"><strong>Período:</strong> {{ obra.inicio|date:"d/m/Y" }} → {{ obra.termino|date:"d/m/Y" }}</p>
+          <p class="mb-1"><strong>Tempo Decorrido:</strong> {{ obra.tempo_obra }} ({{obra.tempo_obra_dias}} dias)</p>
+          <p class="mb-1"><strong>Prazo de Entrega:</strong> {{ obra.prazo_entrega }} ({{obra.prazo_entrega_dias}} dias)</p>
+
+          <hr>
+
+          <h6 class="mb-2">Ações rápidas</h6>
+          <div class="d-grid gap-2">
+            <a class="btn btn-sm btn-outline-primary" href="#">
+              <i class="bi bi-journal-plus"></i> Novo Diário
+            </a>
+            <a class="btn btn-sm btn-outline-info" href="{% url 'historico_edicoes' 'obra' obra.id %}">
+              <i class="bi bi-clock-history"></i> Ver Histórico
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel com contagens -->
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-6 border-end">
+              <div class="h3 mb-0">{{ diarios|length }}</div>
+              <small class="text-muted">Diários</small>
+            </div>
+            <div class="col-6">
+              <div class="h3 mb-0">{{ notificacoes|length }}</div>
+              <small class="text-muted">Notificações</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coluna CENTRAL: Diários e notificações -->
+    <div class="col-12 col-lg-6">
+      <!-- Diários -->
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Diários da obra</h5>
+          <small class="text-muted">{{ diarios|length }} registros</small>
+        </div>
+        <div class="card-body p-2" style="max-height: 320px; overflow:auto;">
+          {% if diarios %}
+            <table class="table table-sm mb-0">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Clima</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for d in diarios %}
+                <tr>
+                  <td>{{ d.data|date:"d/m/Y" }}</td>
+                  <td>
+                    <small class="text-muted">
+                      M: {{ d.clima_manha }} • T: {{ d.clima_tarde }}
+                    </small>
+                  </td>
+                  <td class="text-end">
+                    <a href="{% url 'visualiza_diario' d.id %}" class="btn btn-sm btn-outline-primary">Abrir</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p class="text-muted mb-0">Nenhum diário cadastrado para esta obra.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Notificações -->
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Notificações</h5>
+          <small class="text-muted">{{ notificacoes|length }} registros</small>
+        </div>
+        <div class="card-body p-2" style="max-height: 320px; overflow:auto;">
+          {% if notificacoes %}
+            <ul class="list-group list-group-flush">
+              {% for n in notificacoes %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-bold">{{ n.titulo }}</div>
+                    <small class="text-muted">{{ n.data|date:"d/m/Y" }}</small>
+                  </div>
+                  <a href="{% url 'visualiza_notificacao' n.id %}" class="btn btn-sm btn-outline-primary">Abrir</a>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted mb-0">Nenhuma notificação registrada.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Coluna DIREITA: Histórico -->
+    <div class="col-12 col-lg-3">
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header">
+          <h6 class="mb-0">Histórico</h6>
+        </div>
+        <div class="card-body p-2" style="max-height: 680px; overflow:auto;">
+          {% if historico %}
+            <ul class="list-group list-group-flush">
+              {% for h in historico %}
+                <li class="list-group-item">
+                  <div class="small text-muted">{{ h.timestamp|date:"d/m/Y H:i" }} — {{ h.usuario }}</div>
+                  <div>{{ h.descricao_alteracao }}</div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted mb-0">Sem histórico de edições.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

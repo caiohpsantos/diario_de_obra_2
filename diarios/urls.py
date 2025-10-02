@@ -11,9 +11,10 @@ urlpatterns = [
     #rotas que lidam com as obras
     path('controle_obras/', views.controle_obras, name='controle_obras'),
     path('cadastra_obra/', views.cadastra_obra, name='cadastra_obra'),
-    path('edita_obra/<int:id>', views.edita_obra, name='edita_obra'),
+    path('visualiza_obra/<int:id>/', views.visualiza_obra, name='visualiza_obra'),
+    path('edita_obra/<int:id>/', views.edita_obra, name='edita_obra'),
     #rota para visualização das edições gravadas para determinado registro
-    path('historico_edicoes/<str:tipo>/<int:id>', views.historico_edicoes, name='historico_edicoes')
+    path('historico_edicoes/<str:tipo>/<int:id>/', views.historico_edicoes, name='historico_edicoes')
     
 
 ]
