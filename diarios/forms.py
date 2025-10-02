@@ -137,14 +137,18 @@ class formCadastraObra(forms.ModelForm):
         model = Obras
         fields = ['situacao', "contrato", "nome", "local", "inicio", "termino", "empresa_responsavel"]
         widgets = {
-            "inicio": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
-            "termino": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "inicio": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date", "class": "form-control"}),
+            "termino": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date", "class": "form-control"}),
             "nome": forms.TextInput(attrs={"class": "form-control"}),
             "local": forms.TextInput(attrs={"class": "form-control"}),
             "empresa_responsavel": forms.TextInput(attrs={"class": "form-control"}),
             "situacao": forms.Select(attrs={"class": "form-select"}), #dropdown de situações
             "contrato": forms.Select(attrs={"class": "form-select"}),  # dropdown de contratos
         }
+        input_formats = {
+        "inicio": ["%Y-%m-%d"],
+        "termino": ["%Y-%m-%d"],
+    }
 
     def clean_nome(self):
         nome = self.cleaned_data["nome"]
@@ -161,18 +165,17 @@ class formEditaObra(forms.ModelForm):
         model = Obras
         fields = ['situacao', "contrato", "nome", "local", "inicio", "termino", "empresa_responsavel"]
         widgets = {
-            "inicio": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
-            "termino": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "inicio": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date", "class": "form-control"}),
+            "termino": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date", "class": "form-control"}),
             "nome": forms.TextInput(attrs={"class": "form-control"}),
             "local": forms.TextInput(attrs={"class": "form-control"}),
             "empresa_responsavel": forms.TextInput(attrs={"class": "form-control"}),
             "situacao": forms.Select(attrs={"class": "form-select"}), #dropdown de situações
             "contrato": forms.Select(attrs={"class": "form-select"}),  # dropdown de contratos
         }
+        input_formats = {
+        "inicio": ["%Y-%m-%d"],
+        "termino": ["%Y-%m-%d"],
+        }
 
-    def clean_nome(self):
-        nome = self.cleaned_data["nome"]
-        if Obras.objects.filter(nome=nome).exists():
-            raise forms.ValidationError("Este nome de obra já está em uso.")
-        return nome
     

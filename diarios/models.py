@@ -62,14 +62,22 @@ class Obras(models.Model):
             com, no máximo, 200 caracteres
     '''
 
+    ANDAMENTO = "andamento"
+    CONCLUIDA = "concluida"
+    PARADA = "parada"
+
+    SITUACAO_CHOICES = [
+        (ANDAMENTO, "Em andamento"),
+        (CONCLUIDA, "Concluída"),
+        (PARADA, "Parada"),
+    ]
+
     nome = CharField(max_length=100, null=False)
     local = CharField(max_length=200, null=False)
     inicio = DateField(null=False)
     termino = DateField(null=False)
     situacao = CharField(max_length=20,
-        choices=[("andamento", "Em andamento"),
-                 ("concluida", "Concluída"),
-                 ("parada", "Parada")],
+        choices=SITUACAO_CHOICES,
         default="andamento")
     contrato = ForeignKey(Contratos, on_delete=models.DO_NOTHING, null=False)
     empresa_responsavel = CharField(max_length=200, null=False)

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block conteudo %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">Editar Obra</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" action="{% url 'edita_obra' obra.id %}" novalidate>
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_situacao" class="form-label fw-semibold">Situação</label>
+                                {{ form.situacao }}
+                                {% if form.situacao.errors %}
+                                    <div class="small text-danger">{{ form.situacao.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_contrato" class="form-label fw-semibold">Contrato Vinculado</label>
+                                {{ form.contrato }}
+                                {% if form.contrato.errors %}
+                                    <div class="small text-danger">{{ form.contrato.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_nome" class="form-label fw-semibold">Nome da Obra</label>
+                            {{ form.nome }}
+                            {% if form.nome.errors %}
+                                <div class="small text-danger">{{ form.nome.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_local" class="form-label fw-semibold">Local</label>
+                            {{ form.local }}
+                            {% if form.local.errors %}
+                                <div class="small text-danger">{{ form.local.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_inicio" class="form-label fw-semibold">Data de Início</label>
+                                {{ form.inicio }}
+                                {% if form.inicio.errors %}
+                                    <div class="small text-danger">{{ form.inicio.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_termino" class="form-label fw-semibold">Previsão de Término</label>
+                                {{ form.termino }}
+                                {% if form.termino.errors %}
+                                    <div class="small text-danger">{{ form.termino.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_empresa_responsavel" class="form-label fw-semibold">Empresa Responsável</label>
+                            {{ form.empresa_responsavel }}
+                            {% if form.empresa_responsavel.errors %}
+                                <div class="small text-danger">{{ form.empresa_responsavel.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'controle_obras' %}" class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-arrow-left"></i> Voltar
+                            </a>
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="bi bi-check-circle"></i> Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

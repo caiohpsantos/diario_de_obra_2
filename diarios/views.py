@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, HttpResponse
 from .models import Contratos, Historico_Edicao, Obras, Diarios
-from .forms import formCadastraContrato, formEditaContrato, formCadastraObra
+from .forms import formCadastraContrato, formEditaContrato, formCadastraObra, formEditaObra
 from django.http import JsonResponse, HttpResponseNotFound
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
@@ -195,6 +195,79 @@ def cadastra_obra(request):
             
     
     return render(request, 'obras/cadastra_obra.html', {'form':form})
+
+@login_required
+def edita_obra(request, id):
+    '''
+    Responsável pela criação do formulário e processamento da edição de obras
+    '''
+    obra = get_object_or_404(Obras, id=id)
+    #Caso o request seja GET monta o formulário com os dados cadastrados
+    if request.method == 'GET':
+        form = formEditaObra(instance=obra)
+
+    #Caso o request seja POT valida o formulário, procura por alterações para registro
+    #e atualiza os novos dados
+    if request.method == 'POST':
+        form = formEditaObra(request.POST)
+        if form.is_valid():
+
+            #Descobre qual campo foi alterado e gera a mensagem de alteração para o histórico
+            alteracoes = {}
+            if obra.nome != form.cleaned_data['nome']:
+                alteracoes['nome'] = f"Foi alterado o campo Nome. De {obra.nome} para {form.cleaned_data['nome']}."
+            if obra.local != form.cleaned_data['local']:
+                alteracoes['local'] = f"Foi alterado o campo Local. De {obra.local} para {form.cleaned_data['local']}."
+            novo_inicio = form.cleaned_data['inicio']
+            if obra.inicio != novo_inicio and novo_inicio:
+                alteracoes['inicio'] = f"Foi alterado o campo Data de Início. De {obra.inicio.strftime('%d/%m/%Y')} para {novo_inicio.strftime('%d/%m/%Y')}."
+            novo_termino = form.cleaned_data['termino']
+            if obra.termino != novo_termino and novo_termino:
+                alteracoes['termino'] = f"Foi alterado o campo Previsão de Término. De {obra.termino.strftime('%d/%m/%Y')} para {novo_termino.strftime('%d/%m/%Y')}."
+            nova_situacao = form.cleaned_data['situacao']
+            situacao_atual = obra.situacao
+            if situacao_atual != nova_situacao:
+                alteracoes['situacao'] = f"Foi alterado o campo Situação. De {obra.get_situacao_display()} para {dict(Obras.SITUACAO_CHOICES)[nova_situacao]}."
+            if obra.contrato != form.cleaned_data['contrato']:
+                alteracoes['contrato'] = f"Foi alterado o campo Contrato. De {obra.contrato} para {form.cleaned_data['contrato']}."
+            if obra.empresa_responsavel != form.cleaned_data['empresa_responsavel']:
+                alteracoes['empresa_responsavel'] = f"Foi alterado o campo Empresa Responsável. De {obra.empresa_responsavel} para {form.cleaned_data['empresa_responsavel']}."
+            
+             #Caso alteracoes tenha algum registro, itera sobre eles e salva todos em 'Historico_Edicao'
+            if len(alteracoes.items()) > 0:
+                alteracoes_texto = " | ".join(alteracoes.values())
+                for campo, descricao in alteracoes.items():
+                    Historico_Edicao.objects.create(
+                        tipo = 'obra',
+                        tipo_id = obra.id,
+                        descricao_alteracao = descricao,
+                        usuario = request.user
+                    )
+            
+            #Gera mensagens de sucessos para cada alteração realizada
+            messages.add_message(
+                                        request,
+                                        messages.SUCCESS,
+                                        f"{obra} foi alterada com sucesso. Alterações: {alteracoes_texto}"
+                                        )
+
+            #Substitui os dados para salvar a edição
+            obra.nome = form.cleaned_data['nome']
+            obra.local = form.cleaned_data['local']
+            obra.inicio = form.cleaned_data['inicio']
+            obra.termino = form.cleaned_data['termino']
+            obra.contrato = form.cleaned_data['contrato']
+            obra.empresa_responsavel = form.cleaned_data['empresa_responsavel']
+
+            return redirect("controle_obras")
+        
+        else:
+                messages.add_message(request, messages.constants.WARNING, f"Não foram detectadas alterações.")
+    else:
+        pass
+    
+    return render(request, 'obras/edita_obra.html', {'form':form, 'obra':obra})
+
 #views que lidam com historico de edições
 @login_required
 def historico_edicoes(request, tipo, id):
