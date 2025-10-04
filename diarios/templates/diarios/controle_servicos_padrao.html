@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block conteudo %}
+<div class="container-fluid py-4" style="background-color: #f8f9fa; min-height: 100vh;">
+  <!-- Título -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Controle de Serviços Padrão</h2>
+  </div>
+
+  <!-- Formulário de cadastro rápido -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <form method="post" class="row g-2 align-items-center">
+        {% csrf_token %}
+        <div class="col-md-8 col-lg-6">
+          <input 
+            type="text" 
+            name="descricao" 
+            class="form-control form-control-sm" 
+            placeholder="Digite a descrição do serviço..." 
+            required
+          >
+        </div>
+        <div class="col-md-auto">
+          <button type="submit" class="btn btn-success btn-sm">
+            <i class="bi bi-plus-circle"></i> Adicionar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Lista de serviços -->
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Serviços Cadastrados</h5>
+      <small class="text-muted">{{ servicos|length }} registro{% if servicos|length != 1 %}s{% endif %}</small>
+    </div>
+    <div class="card-body p-0">
+      {% if servicos %}
+      <table class="table table-hover table-sm mb-0">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 60px;">#</th>
+            <th>Descrição</th>
+            <th style="width: 120px;" class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for servico in servicos %}
+          <tr data-id="{{ servico.id }}">
+            <td>{{ forloop.counter }}</td>
+            <td class="descricao-cell">
+              <span class="descricao-text">{{ servico.descricao }}</span>
+              <input type="text" class="form-control form-control-sm d-none descricao-input" value="{{ servico.descricao }}">
+            </td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-secondary btn-editar">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-success d-none btn-salvar">
+                <i class="bi bi-check"></i>
+              </button>
+              <a href="{% url 'exclui_servicos_padrao' servico.id %}" class="btn btn-sm btn-outline-danger ms-1"
+                 onclick="return confirm('Tem certeza que deseja excluir este serviço?')">
+                <i class="bi bi-trash"></i>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <div class="p-3 text-center text-muted">
+          Nenhum serviço cadastrado.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Script para edição inline -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('tr[data-id]').forEach(row => {
+    const btnEditar = row.querySelector('.btn-editar');
+    const btnSalvar = row.querySelector('.btn-salvar');
+    const spanDescricao = row.querySelector('.descricao-text');
+    const inputDescricao = row.querySelector('.descricao-input');
+
+    // Alternar para modo edição
+    btnEditar.addEventListener('click', () => {
+      spanDescricao.classList.add('d-none');
+      inputDescricao.classList.remove('d-none');
+      btnEditar.classList.add('d-none');
+      btnSalvar.classList.remove('d-none');
+      inputDescricao.focus();
+    });
+
+    // Salvar alteração via fetch
+    btnSalvar.addEventListener('click', () => {
+      const novoValor = inputDescricao.value.trim();
+      if (novoValor === '') return;
+
+      fetch("{% url 'edita_servicos_padrao_ajax' %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ id: row.dataset.id, descricao: novoValor })
+      })
+      .then(resp => resp.json())
+      .then(data => {
+        if (data.sucesso) {
+          spanDescricao.textContent = novoValor;
+          spanDescricao.classList.remove('d-none');
+          inputDescricao.classList.add('d-none');
+          btnSalvar.classList.add('d-none');
+          btnEditar.classList.remove('d-none');
+        } else {
+          alert('Erro ao salvar: ' + data.mensagem);
+        }
+      })
+      .catch(err => alert('Erro: ' + err));
+    });
+  });
+});
+</script>
+{% endblock %}

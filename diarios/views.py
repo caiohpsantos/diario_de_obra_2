@@ -1,10 +1,14 @@
+import json
+from django.db.models import Count
 from django.shortcuts import render, redirect, HttpResponse
-from .models import Contratos, Historico_Edicao, Obras, Diarios
-from .forms import formCadastraContrato, formEditaContrato, formCadastraObra, formEditaObra
 from django.http import JsonResponse, HttpResponseNotFound
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from .models import Contratos, Historico_Edicao, Obras, Diarios, ServicosPadrao
+from .forms import formCadastraContrato, formEditaContrato, formCadastraObra, formEditaObra
 
 
 def status_ativo(status):
@@ -21,6 +25,7 @@ def controle_contratos(request):
     '''
     if request.method == 'GET':
         contratos = Contratos.objects.all()
+        contratos = Contratos.objects.annotate(qtd_obras=Count('obras'))
     else:
         messages.add_message(request, messages.constants.ERROR, "Este tipo de operação não é permitida. Esta rota só aceita o método GET.")
         return redirect('404.html')
@@ -71,7 +76,7 @@ def edita_contrato(request, id):
         })
     #Caso o request seja POST instancia o formulário com os dados recebidos
     else:
-        form = formEditaContrato(request.POST)
+        form = formEditaContrato(request.POST, instance=contrato)
         if form.is_valid():
            
             #Descobre qual campo foi alterado e salva uma frase explicativa no dicionario 'alteracoes'
@@ -138,6 +143,23 @@ def visualiza_contrato(request, id):
     #Inserir pesquisa de notificações quando disponível
     return render(request, 'contratos/visualiza_contrato.html', {'contrato':contrato,'obras':obras, 'diarios':diarios, 'historico':historico})
 
+@login_required
+def exclui_contrato(request,id):
+    obras = Obras.objects.filter(contrato=id).select_related("contrato")
+    if obras:
+        messages.add_message(request,
+                             messages.ERROR,
+                             f"Não é possível excluir o contrato {obras[0].contrato}. Ele já possui obras vinculadas a ele. Ainda é possível desativá-lo para que não apareça para emissão de diários e notificações.")
+        return redirect('visualiza_contrato', id=id)
+    else:
+        contrato = get_object_or_404(Contratos, id=id)
+        nome_contrato = contrato.nome
+        contrato.delete()
+        messages.add_message(request,
+                             messages.SUCCESS,
+                             f"O contrato {nome_contrato} foi excluído com sucesso.")
+        return redirect('controle_contratos')
+    
 #views que lidam com obras
 @login_required
 def controle_obras(request):
@@ -212,7 +234,6 @@ def visualiza_obra(request, id):
 
     return render(request, 'obras/visualiza_obra.html', {'obra':obra, 'diarios':diarios, 'historico':historico_edicoes})
 
-
 @login_required
 def edita_obra(request, id):
     '''
@@ -226,7 +247,7 @@ def edita_obra(request, id):
     #Caso o request seja POT valida o formulário, procura por alterações para registro
     #e atualiza os novos dados
     if request.method == 'POST':
-        form = formEditaObra(request.POST)
+        form = formEditaObra(request.POST, instance=obra)
         if form.is_valid():
 
             #Descobre qual campo foi alterado e gera a mensagem de alteração para o histórico
@@ -261,29 +282,77 @@ def edita_obra(request, id):
                         usuario = request.user
                     )
             
-            #Gera mensagens de sucessos para cada alteração realizada
-            messages.add_message(
+                #Gera mensagens de sucessos para cada alteração realizada
+                messages.add_message(
                                         request,
                                         messages.SUCCESS,
                                         f"{obra} foi alterada com sucesso. Alterações: {alteracoes_texto}"
                                         )
 
-            #Substitui os dados para salvar a edição
-            obra.nome = form.cleaned_data['nome']
-            obra.local = form.cleaned_data['local']
-            obra.inicio = form.cleaned_data['inicio']
-            obra.termino = form.cleaned_data['termino']
-            obra.contrato = form.cleaned_data['contrato']
-            obra.empresa_responsavel = form.cleaned_data['empresa_responsavel']
+                #Substitui os dados para salvar a edição
+                obra.nome = form.cleaned_data['nome']
+                obra.local = form.cleaned_data['local']
+                obra.inicio = form.cleaned_data['inicio']
+                obra.termino = form.cleaned_data['termino']
+                obra.contrato = form.cleaned_data['contrato']
+                obra.empresa_responsavel = form.cleaned_data['empresa_responsavel']
 
-            return redirect("controle_obras")
+                return redirect("controle_obras")
         
-        else:
+            else:
                 messages.add_message(request, messages.constants.WARNING, f"Não foram detectadas alterações.")
-    else:
-        pass
+        else:
+            pass
     
     return render(request, 'obras/edita_obra.html', {'form':form, 'obra':obra})
+
+@login_required
+def exclui_obra(request, id):
+    diarios = Diarios.objects.filter(obra=id).select_related("obra")
+    if diarios:
+        messages.add_message(request,
+                             messages.ERROR,
+                             f"Não é possível excluir a obra {diarios[0].obra}. Ela já possui diários vinculados a ela. Ainda é possível desativá-la para que não apareça para emissão de diários e notificações.")
+        return redirect('visualiza_obra', id=id)
+    else:
+        obra = get_object_or_404(Obras, id=id)
+        nome_obra = obra.nome
+        obra.delete()
+        messages.add_message(request,
+                             messages.SUCCESS,
+                             f"A obra {nome_obra} foi excluída com sucesso.")
+        return redirect('controle_obras')
+    
+#views que lidam com diario
+def controle_servicos_padrao(request):
+    if request.method == 'POST':
+        descricao = request.POST.get('descricao', '').strip()
+        if descricao:
+            ServicosPadrao.objects.create(descricao=descricao)
+            messages.add_message(request, messages.SUCCESS, f"Serviço {descricao} foi cadastrado com sucesso.")
+        else:
+            messages.add_message(request, messages.ERROR, f"Preencha o nome do serviço no campo de Descrição.")
+        return redirect('controle_servicos_padrao')  # redireciona pra limpar o form
+
+    servicos = ServicosPadrao.objects.all().order_by('descricao')
+    return render(request, 'diarios/controle_servicos_padrao.html', {'servicos': servicos})
+
+
+@require_POST
+@csrf_exempt
+def edita_servicos_padrao_ajax(request):
+    try:
+        data = json.loads(request.body)
+        servico = ServicosPadrao.objects.get(id=data['id'])
+        servico.descricao = data['descricao']
+        servico.save()
+        return JsonResponse({'sucesso': True})
+    except Exception as e:
+        return JsonResponse({'sucesso': False, 'mensagem': str(e)})
+
+@login_required    
+def exclui_servicos_padrao(request, id):
+    ...
 
 #views que lidam com historico de edições
 @login_required

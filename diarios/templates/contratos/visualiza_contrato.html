@@ -37,6 +37,10 @@
             <a class="btn btn-sm btn-outline-info" href="{% url 'historico_edicoes' 'contrato' contrato.id %}" >
               <i class="bi bi-clock-history"></i> Ver Histórico
             </a>
+            <a class="btn btn-sm btn-outline-danger" href="{% url 'exclui_contrato' contrato.id %}"
+            onclick="return confirm('Tem certeza que deseja excluir este contrato?')"
+              <i class="bi bi-trash"></id> Excluir
+              </a>
           </div>
         </div>
       </div>
@@ -72,7 +76,17 @@
               {% for obra in obras %}
                 <div class="list-group-item d-flex justify-content-between align-items-start">
                   <div class="ms-2 me-auto">
-                    <div class="fw-bold">{{ obra.nome }}</div>
+                    <div class="fw-bold">
+                      {{ obra.nome }}
+                      <span class="badge 
+                        {% if obra.situacao == 'andamento' %} bg-primary
+                        {% elif obra.situacao == 'parada' %} bg-danger
+                        {% elif obra.situacao == 'concluida' %} bg-success 
+                        {% else %} bg-secondary {% endif %}">
+                        {{ obra.get_situacao_display }}
+                      </span>
+
+                    </div>
                     <small class="text-muted">{{ obra.local }} • {{ obra.inicio }} → {{ obra.termino }}</small>
                   </div>
                   <div class="text-end">

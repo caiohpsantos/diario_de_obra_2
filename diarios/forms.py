@@ -1,5 +1,6 @@
 from django import forms
 from .models import Contratos, Obras
+from django.shortcuts import HttpResponse
 
 #formulários relativos aos contratos
 class formCadastraContrato(forms.Form):
@@ -126,6 +127,22 @@ class formEditaContrato(forms.Form):
                     "Exemplo: Se inicia no dia 2, deve terminar no dia 1."
                 )
         return cleaned_data
+    
+    def clean_nome(self):
+        nome = self.cleaned_data.get("nome")
+        instance = getattr(self, 'instance', None)
+
+        # Se for um novo registro (sem instance.id)
+        if not instance or not instance.pk:
+            if Contratos.objects.filter(nome=nome).exists():
+                raise forms.ValidationError("Este nome de contrato já está em uso.")
+        else:
+            # Se for edição, só valida se o nome mudou
+            if nome != instance.nome:
+                if Contratos.objects.filter(nome=nome).exists():
+                    raise forms.ValidationError("Este nome de contrato já está em uso.")
+
+        return nome
 
 #formulários relativos às obras
 class formCadastraObra(forms.ModelForm):
@@ -149,6 +166,9 @@ class formCadastraObra(forms.ModelForm):
         "inicio": ["%Y-%m-%d"],
         "termino": ["%Y-%m-%d"],
     }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['contrato'].queryset = Contratos.objects.filter(ativo=True)
 
     def clean_nome(self):
         nome = self.cleaned_data["nome"]
@@ -177,5 +197,35 @@ class formEditaObra(forms.ModelForm):
         "inicio": ["%Y-%m-%d"],
         "termino": ["%Y-%m-%d"],
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Filtra contratos ativos
+        contratos_qs = Contratos.objects.filter(ativo=True)
+
+        # Se estiver editando uma obra existente, inclui o contrato atual mesmo se estiver inativo
+        if self.instance and self.instance.pk and self.instance.contrato:
+            contrato_atual = self.instance.contrato
+            if contrato_atual.ativo != True:
+                contratos_qs = Contratos.objects.filter(
+                    pk=contrato_atual.pk
+                ) | contratos_qs  # Une o contrato atual ao queryset filtrado
+
+        self.fields['contrato'].queryset = contratos_qs
 
     
+    def clean_nome(self):
+        nome = self.cleaned_data.get("nome")
+        instance = getattr(self, 'instance', None)
+
+        # Se for um novo registro (sem instance.id)
+        if not instance or not instance.pk:
+            if Obras.objects.filter(nome=nome).exists():
+                raise forms.ValidationError("Este nome de obra já está em uso.")
+        else:
+            # Se for edição, só valida se o nome mudou
+            if nome != instance.nome:
+                if Obras.objects.filter(nome=nome).exists():
+                    raise forms.ValidationError("Este nome de obra já está em uso.")
+
+        return nome

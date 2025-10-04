@@ -48,6 +48,10 @@
             <a class="btn btn-sm btn-outline-info" href="{% url 'historico_edicoes' 'obra' obra.id %}">
               <i class="bi bi-clock-history"></i> Ver Histórico
             </a>
+            <a class="btn btn-sm btn-outline-danger" href="{% url 'exclui_obra' obra.id %}" 
+             onclick="return confirm('Tem certeza que deseja excluir esta obra?')">
+              <i class="bi bi-trash"></i> Excluir Obra
+            </a>
           </div>
         </div>
       </div>

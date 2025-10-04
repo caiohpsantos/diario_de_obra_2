@@ -5,7 +5,7 @@
 <div class="container-fluid py-4" style="background-color: #f8f9fa; min-height: 100vh;">
 
   <!-- Título -->
-   <div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">Controle de Obras</h2>
     <a class="btn btn-primary btn-sm" href="{% url 'cadastra_obra' %}">
       <i class="bi bi-folder-plus"> Nova Obra </i>
@@ -14,17 +14,17 @@
   
   <!-- Formulário de Pesquisa -->
   <div class="card shadow-sm mb-4">
-    <div class="card-body">
+    <div class="card-body p-2">
       <form method="get" class="row g-2 align-items-end">
         <!-- Nome da Obra -->
         <div class="col-md-3">
-          <label for="nome_obra" class="form-label fw-semibold">Nome da Obra</label>
+          <label for="nome_obra" class="form-label fw-semibold small">Nome da Obra</label>
           <input type="text" name="nome_obra" id="nome_obra" class="form-control form-control-sm" placeholder="Digite o nome">
         </div>
 
         <!-- Contrato -->
         <div class="col-md-3">
-          <label for="contrato" class="form-label fw-semibold">Contrato</label>
+          <label for="contrato" class="form-label fw-semibold small">Contrato</label>
           <select name="contrato" id="contrato" class="form-select form-select-sm">
             <option value="">-- Todos --</option>
             {% for contrato in contratos %}
@@ -35,7 +35,7 @@
 
         <!-- Situação -->
         <div class="col-md-2">
-          <label for="situacao" class="form-label fw-semibold">Situação</label>
+          <label for="situacao" class="form-label fw-semibold small">Situação</label>
           <select name="situacao" id="situacao" class="form-select form-select-sm">
             <option value="">-- Todas --</option>
             <option value="andamento">Em andamento</option>
@@ -46,7 +46,7 @@
 
         <!-- Empresa Responsável -->
         <div class="col-md-3">
-          <label for="empresa" class="form-label fw-semibold">Empresa Responsável</label>
+          <label for="empresa" class="form-label fw-semibold small">Empresa Responsável</label>
           <input type="text" name="empresa" id="empresa" class="form-control form-control-sm" placeholder="Digite a empresa">
         </div>
 
@@ -58,53 +58,47 @@
     </div>
   </div>
 
-
- 
   <!-- Lista de Obras -->
-  <div class="d-flex flex-column gap-3" style="max-height: 70vh; overflow-y: auto;">
+  <div class="d-flex flex-column gap-2" style="max-height: 70vh; overflow-y: auto;">
     {% for obra in obras %}
     <div class="card shadow-sm obra-card" style="transition: background-color 0.3s;">
-      <div class="card-body d-flex flex-column">
-        
+      <div class="card-body p-2 d-flex flex-column">
+
         <!-- Botão Visualizar no topo -->
-        <div class="d-flex justify-content-end mb-2">
-            <a href="{% url 'visualiza_obra' obra.id %}" class="btn btn-sm btn-outline-primary">
-              <i class="bi bi-eye"></i> Visualizar
-            </a>
+        <div class="d-flex justify-content-end mb-1">
+          <a href="{% url 'visualiza_obra' obra.id %}" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-eye"></i> Visualizar
+          </a>
         </div>
 
         <!-- Conteúdo central -->
-        <h5 class="card-title fw-bold">{{ obra.nome }}</h5>
-        <p class="card-text mb-1"><strong>Contrato:</strong> {{ obra.contrato.nome }}</p>
-        <p class="card-text mb-1"><strong>Situação:</strong>
-            <span class="badge 
-              {% if obra.situacao == 'andamento' %} bg-primary
-              {% elif obra.situacao == 'parada' %} bg-danger
-              {% elif obra.situacao == 'concluida' %} bg-success 
-              {% else %} bg-secondary {% endif %}">
-              {{ obra.get_situacao_display }}
-            </span>
-        
-          </p>
-        <p class="card-text mb-0"><strong>Empresa Responsável:</strong> {{ obra.empresa_responsavel }}</p>
-        <p class="card-text mb-0"><strong>Início:</strong> {{obra.inicio}} / <strong>Término Previsto:</strong> {{obra.termino}}</p>
-        <p class="card-text mb-1"><strong>Tempo Decorrido:</strong> {{obra.tempo_obra}} / <strong>Prazo de Entrega:</strong> {{obra.prazo_entrega}}
+        <h6 class="card-title fw-bold mb-1">{{ obra.nome }}</h6>
+        <p class="card-text mb-0"><strong>Contrato:</strong> {{ obra.contrato.nome }}</p>
+        <p class="card-text mb-0"><strong>Situação:</strong>
+          <span class="badge 
+            {% if obra.situacao == 'andamento' %} bg-primary
+            {% elif obra.situacao == 'parada' %} bg-danger
+            {% elif obra.situacao == 'concluida' %} bg-success 
+            {% else %} bg-secondary {% endif %}">
+            {{ obra.get_situacao_display }}
+          </span>
+        </p>
+        <p class="card-text mb-0"><strong>Empresa:</strong> {{ obra.empresa_responsavel }}</p>
+        <p class="card-text mb-0"><strong>Início:</strong> {{obra.inicio}} / <strong>Término:</strong> {{obra.termino}}</p>
+        <p class="card-text mb-1"><strong>Decorrido:</strong> {{obra.tempo_obra}} / <strong>Prazo:</strong> {{obra.prazo_entrega}}</p>
 
         <!-- Botão Editar no rodapé -->
         <div class="mt-auto d-flex justify-content-end">
-            <a href="{% url 'edita_obra' obra.id %}" class="btn btn-sm btn-outline-secondary">
-              <i class="bi bi-pencil"></i> Editar
-            </a>
+          <a href="{% url 'edita_obra' obra.id %}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-pencil"></i> Editar
+          </a>
         </div>
-
       </div>
     </div>
     {% empty %}
     <div class="alert alert-info text-center">Nenhuma obra encontrada.</div>
     {% endfor %}
-    </div>
-
-
+  </div>
 </div>
 
 <!-- Estilo hover para os cards -->
