@@ -9,7 +9,7 @@
                     <h4>Cadastrar Nova Obra</h4>
                 </div>
                 <div class="card-body p-4">
-                    <form method="post" action="{% url 'cadastra_obra' %}">
+                    <form method="post" action="{% url 'cadastra_obra' 0 %}">
                         {% csrf_token %}
 
                          <div class="row">

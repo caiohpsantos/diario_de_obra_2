@@ -7,7 +7,7 @@
   <!-- Título -->
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">Controle de Obras</h2>
-    <a class="btn btn-primary btn-sm" href="{% url 'cadastra_obra' %}">
+    <a class="btn btn-primary btn-sm" href="{% url 'cadastra_obra' 0 %}">
       <i class="bi bi-folder-plus"> Nova Obra </i>
     </a>
   </div>
@@ -73,7 +73,10 @@
 
         <!-- Conteúdo central -->
         <h6 class="card-title fw-bold mb-1">{{ obra.nome }}</h6>
-        <p class="card-text mb-0"><strong>Contrato:</strong> {{ obra.contrato.nome }}</p>
+        <p class="card-text mb-0"><strong>Contrato:</strong>
+          {{ obra.contrato.nome }}
+           {% if obra.contrato.ativo %}<span class="badge bg-success">Ativo</span>{% else %}<span class="badge bg-secondary">Inativo</span>{% endif %}
+        </p>
         <p class="card-text mb-0"><strong>Situação:</strong>
           <span class="badge 
             {% if obra.situacao == 'andamento' %} bg-primary
