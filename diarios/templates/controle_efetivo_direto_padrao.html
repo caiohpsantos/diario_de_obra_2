@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block conteudo %}
+<div class="container-fluid py-4" style="background-color: #f8f9fa; min-height: 100vh;">
+  <!-- Título -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Controle de Efetivo Direto Padrão</h2>
+  </div>
+
+  <!-- Formulário de cadastro rápido -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <form method="post" class="row g-2 align-items-center">
+        {% csrf_token %}
+        <div class="col-md-8 col-lg-4">
+          <label for="funcaoId">Digite a função</label>
+          <input 
+            id="funcaoId"
+            type="text" 
+            name="funcao" 
+            class="form-control form-control-sm" 
+            required
+          >
+        </div>
+        <div class="col-md-8 col-lg-2">
+          <label for="qtdeId">Digite o efetivo total</label>
+          <input
+            id='qtdeId' 
+            type="text" 
+            name="qtde" 
+            class="form-control form-control-sm" 
+            value="1" 
+            required
+          >
+        </div>
+        <div class="col-md-8 col-lg-2">
+          <label for="qtdeId">Digite o efetivo presente</label>
+          <input 
+            id='presenteId'
+            type="text" 
+            name="presente" 
+            class="form-control form-control-sm"
+            value="1" 
+            required
+          >
+        </div>
+        <div class="col-md-8 col-lg-2">
+          <label for="ausenteId">Efetivo ausente</label>
+          <input 
+            id='ausenteId'
+            type="text" 
+            name="ausente" 
+            class="form-control form-control-sm" 
+            disabled
+          >
+        </div>
+         <div class="col-md-8 col-lg-2">
+          <label for="qtdeId">Efetivo total</label>
+          <input 
+            id='efetivoId'
+            type="text" 
+            name="efetivo" 
+            class="form-control form-control-sm" 
+            disabled
+          >
+        </div>
+        <div class="col-md-auto">
+          <button type="submit" class="btn btn-success btn-sm" id='btnAdicionar'>
+            <i class="bi bi-plus-circle"></i> Adicionar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Lista de efetivo direto -->
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Efetivo Direto Cadastrado</h5>
+      <small class="text-muted">{{ efetivos|length }} registro{% if efetivos|length != 1 %}s{% endif %}</small>
+    </div>
+    <div class="card-body p-0">
+      {% if efetivos %}
+      <table class="table table-hover table-sm mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Função</th>
+            <th>Efetivo Alocado</th>
+            <th>Efetivo Presente</th>
+            <th>Efetivo Ausente</th>
+            <th>Efetivo Total</th>
+            <th style="width: 120px;" class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for efetivo in efetivos %}
+          <tr data-id="{{ efetivo.id }}">
+            <td>{{ forloop.counter }}</td>
+            <td class="descricao-cell">
+              <span class="descricao-text">{{ efetivo.funcao }}</span>
+              <input type="text" class="form-control form-control-sm d-none descricao-input" value="{{ efetivo.funcao }}">
+            </td>
+            <td class="qtde-cell">
+              <span class="qtde-text">{{ efetivo.qtde }}</span>
+              <input type="text" class="form-control form-control-sm d-none qtde-input" value="{{ efetivo.qtde }}">
+            </td>
+            <td class="presente-cell">
+              <span class="presente-text">{{ efetivo.presente }}</span>
+              <input type="text" class="form-control form-control-sm d-none presente-input" value="{{ efetivo.presente }}">
+            </td>
+            <td class="ausente-cell">
+              <span class="ausente-text">{{ efetivo.ausente }}</span>
+              <input type="text" class="form-control form-control-sm d-none ausente-input" value="{{ efetivo.ausente }}" disabled>
+            </td>
+            <td class="efetivo-cell">
+              <span class="efetivo-text">{{ efetivo.efetivo }}</span>
+              <input type="text" class="form-control form-control-sm d-none efetivo-input" value="{{ efetivo.efetivo }}" disabled>
+            </td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-secondary btn-editar">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-success d-none btn-salvar">
+                <i class="bi bi-check"></i>
+              </button>
+              <a href="{% url 'excluir_efetivo_direto_padrao' efetivo.id %}" class="btn btn-sm btn-outline-danger ms-1"
+                 onclick="return confirm('Tem certeza que deseja excluir este serviço?')">
+                <i class="bi bi-trash"></i>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <div class="p-3 text-center text-muted">
+          Nenhum efetivo direto cadastrado.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<script>
+  // Variáveis globais para uso no arquivo JS
+  window.csrfToken = "{{ csrf_token }}";
+  window.editaEfetivoUrl = "{% url 'edita_efetivo_direto_padrao_ajax' %}";
+</script>
+<script src="{% static 'diarios/js/efetivo_direto_padrao.js' %}"></script>
+{% endblock %}

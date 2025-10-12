@@ -79,53 +79,13 @@
     </div>
   </div>
 </div>
+<script>
+  // Variáveis globais para uso no arquivo JS
+  window.csrfToken = "{{ csrf_token }}";
+  window.editaEfetivoUrl = "{% url 'edita_servicos_padrao_ajax' %}";
+</script>
 
 <!-- Script para edição inline -->
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('tr[data-id]').forEach(row => {
-    const btnEditar = row.querySelector('.btn-editar');
-    const btnSalvar = row.querySelector('.btn-salvar');
-    const spanDescricao = row.querySelector('.descricao-text');
-    const inputDescricao = row.querySelector('.descricao-input');
+<script src="{% static 'diarios/js/servico_padrao.js' %}"></script>
 
-    // Alternar para modo edição
-    btnEditar.addEventListener('click', () => {
-      spanDescricao.classList.add('d-none');
-      inputDescricao.classList.remove('d-none');
-      btnEditar.classList.add('d-none');
-      btnSalvar.classList.remove('d-none');
-      inputDescricao.focus();
-    });
-
-    // Salvar alteração via fetch
-    btnSalvar.addEventListener('click', () => {
-      const novoValor = inputDescricao.value.trim();
-      if (novoValor === '') return;
-
-      fetch("{% url 'edita_servicos_padrao_ajax' %}", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({ id: row.dataset.id, descricao: novoValor })
-      })
-      .then(resp => resp.json())
-      .then(data => {
-        if (data.sucesso) {
-          spanDescricao.textContent = novoValor;
-          spanDescricao.classList.remove('d-none');
-          inputDescricao.classList.add('d-none');
-          btnSalvar.classList.add('d-none');
-          btnEditar.classList.remove('d-none');
-        } else {
-          alert('Erro ao salvar: ' + data.mensagem);
-        }
-      })
-      .catch(err => alert('Erro: ' + err));
-    });
-  });
-});
-</script>
 {% endblock %}
