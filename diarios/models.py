@@ -142,7 +142,6 @@ class Efetivo_Indireto(models.Model):
     efetivo = IntegerField(null=False)
     diario = ForeignKey(Diarios, on_delete=models.DO_NOTHING)
 
-
     
 
 
