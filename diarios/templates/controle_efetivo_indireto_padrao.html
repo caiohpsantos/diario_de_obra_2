@@ -64,25 +64,13 @@
           {% for efetivo in efetivos %}
           <tr data-id="{{ efetivo.id }}">
             <td>{{ forloop.counter }}</td>
-            <td class="descricao-cell">
-              <span class="descricao-text">{{ efetivo.funcao }}</span>
+            <td class="funcao-cell">
+              <span class="funcao-text">{{ efetivo.funcao }}</span>
               <input type="text" class="form-control form-control-sm d-none descricao-input" value="{{ efetivo.funcao }}">
-            </td>
-            <td class="qtde-cell">
-              <span class="qtde-text">{{ efetivo.qtde }}</span>
-              <input type="text" class="form-control form-control-sm d-none qtde-input" value="{{ efetivo.qtde }}">
-            </td>
-            <td class="presente-cell">
-              <span class="presente-text">{{ efetivo.presente }}</span>
-              <input type="text" class="form-control form-control-sm d-none presente-input" value="{{ efetivo.presente }}">
-            </td>
-            <td class="ausente-cell">
-              <span class="ausente-text">{{ efetivo.ausente }}</span>
-              <input type="text" class="form-control form-control-sm d-none ausente-input" value="{{ efetivo.ausente }}" disabled>
             </td>
             <td class="efetivo-cell">
               <span class="efetivo-text">{{ efetivo.efetivo }}</span>
-              <input type="text" class="form-control form-control-sm d-none efetivo-input" value="{{ efetivo.efetivo }}" disabled>
+              <input type="text" class="form-control form-control-sm d-none qtde-input" value="{{ efetivo.qtde }}">
             </td>
             <td class="text-end">
               <button class="btn btn-sm btn-outline-secondary btn-editar">
@@ -111,7 +99,7 @@
 <script>
   // Variáveis globais para uso no arquivo JS
   window.csrfToken = "{{ csrf_token }}";
-  window.editaEfetivoUrl = "{% url 'edita_efetivo_direto_padrao_ajax' %}";
+  window.editaEfetivoUrl = "{% url 'edita_efetivo_indireto_padrao_ajax' %}";
 </script>
-<script src="{% static 'diarios/js/efetivo_direto_padrao.js' %}"></script>
+<script src="{% static 'diarios/js/efetivo_indireto_padrao.js' %}"></script>
 {% endblock %}
