@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const inputEfetivo = row.querySelector(".efetivo-input");
 
     // Pressionar Enter → clicar em Salvar
-    inputPresente.addEventListener("keydown", (event) => {
+    inputEfetivo.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         event.preventDefault();
         btnSalvar.click();
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Salvar alteração
     btnSalvar.addEventListener("click", () => {
       const novaFuncao = inputFuncao.value.trim();
-      const novaEfetivo = inputEfetivo.value.trim();
+      const novoEfetivo = inputEfetivo.value.trim();
 
       if (!novaFuncao) { alert("A função não pode ficar vazia."); return; }
 
@@ -61,28 +61,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ======== FORMULÁRIO DE CADASTRO RÁPIDO ========
-  const qtdeInput = document.getElementById("qtdeId");
-  const presenteInput = document.getElementById("presenteId");
-  const ausenteInput = document.getElementById("ausenteId");
+  const funcaoInput = document.getElementById("funcaoId");
   const efetivoInput = document.getElementById("efetivoId");
   const btnAdicionar = document.getElementById("btnAdicionar");
 
-  function calcularAusentes() {
-    let qtde = Number(qtdeInput.value) || 0;
-    let presente = Number(presenteInput.value) || 0;
-
-    if (qtde < 1) { qtdeInput.value = 1; qtde = 1; }
-    if (presente < 1) { presenteInput.value = 1; presente = 1; }
-    if (presente > qtde) { presenteInput.value = qtde; presente = qtde; }
-
-    ausenteInput.value = qtde - presente;
-    efetivoInput.value = presente;
-  }
-
-  qtdeInput.addEventListener("input", calcularAusentes);
-  presenteInput.addEventListener("input", calcularAusentes);
-  presenteInput.addEventListener("keydown", (event) => {
+  efetivoInput.addEventListener("keydown", (event) => {
     if (event.key === "Enter") { event.preventDefault(); btnAdicionar.click(); }
   });
-  calcularAusentes();
+  
 });

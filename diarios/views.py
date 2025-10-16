@@ -223,3 +223,19 @@ def edita_efetivo_indireto_padrao_ajax(request):
         return JsonResponse({'sucesso': False, 'mensagem': 'Efetivo não encontrado.'})
     except Exception as e:
         return JsonResponse({'sucesso': False, 'mensagem': str(e)})
+    
+@login_required    
+def exclui_efetivo_indireto_padrao(request, id):
+    """
+    Exclui um efetivo indireto padrão.
+
+    """
+    try:
+        efetivo_indireto_padrao = get_object_or_404(Efetivo_Indireto_Padrao, id=id)
+        efetivo_funcao = efetivo_indireto_padrao.funcao
+        efetivo_indireto_padrao.delete()
+        messages.add_message(request, messages.SUCCESS, f"O efetivo {efetivo_funcao} foi excluído com sucesso.")
+    except Exception as e:
+        messages.add_message(request, messages.ERROR, f"Não foi possível excluir o efetivo {efetivo_funcao}. Erro: {e}")
+    
+    return redirect("controle_efetivo_indireto_padrao")

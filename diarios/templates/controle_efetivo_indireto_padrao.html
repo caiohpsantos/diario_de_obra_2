@@ -66,11 +66,11 @@
             <td>{{ forloop.counter }}</td>
             <td class="funcao-cell">
               <span class="funcao-text">{{ efetivo.funcao }}</span>
-              <input type="text" class="form-control form-control-sm d-none descricao-input" value="{{ efetivo.funcao }}">
+              <input type="text" class="form-control form-control-sm d-none funcao-input" value="{{ efetivo.funcao }}">
             </td>
             <td class="efetivo-cell">
               <span class="efetivo-text">{{ efetivo.efetivo }}</span>
-              <input type="text" class="form-control form-control-sm d-none qtde-input" value="{{ efetivo.qtde }}">
+              <input type="text" class="form-control form-control-sm d-none efetivo-input" value="{{ efetivo.efetivo }}">
             </td>
             <td class="text-end">
               <button class="btn btn-sm btn-outline-secondary btn-editar">
@@ -79,8 +79,8 @@
               <button class="btn btn-sm btn-success d-none btn-salvar">
                 <i class="bi bi-check"></i>
               </button>
-              <a href="{% url 'excluir_efetivo_direto_padrao' efetivo.id %}" class="btn btn-sm btn-outline-danger ms-1"
-                 onclick="return confirm('Tem certeza que deseja excluir este serviço?')">
+              <a href="{% url 'excluir_efetivo_indireto_padrao' efetivo.id %}" class="btn btn-sm btn-outline-danger ms-1"
+                 onclick="return confirm('Tem certeza que deseja excluir este efetivo indireto?')">
                 <i class="bi bi-trash"></i>
               </a>
             </td>
