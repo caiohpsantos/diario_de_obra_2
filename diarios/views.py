@@ -198,3 +198,28 @@ def controle_efetivo_indireto_padrao(request):
 
     efetivo_indireto_padrao = Efetivo_Indireto_Padrao.objects.all()
     return render(request, "controle_efetivo_indireto_padrao.html", {"efetivos":efetivo_indireto_padrao})
+
+@login_required
+@require_POST
+def edita_efetivo_indireto_padrao_ajax(request):
+    try:
+        data = json.loads(request.body)
+        efetivo = Efetivo_Indireto_Padrao.objects.get(id=data['id'])
+
+        # Atualiza os campos
+        efetivo.funcao = data.get('funcao', efetivo.funcao)
+        qtde = int(data.get('efetivo', efetivo.efetivo))
+
+        # Validação simples
+        if qtde < 1:
+            qtde = 1
+
+        efetivo.efetivo = qtde
+        efetivo.save()
+
+        return JsonResponse({'sucesso': True})
+    
+    except Efetivo_Indireto_Padrao.DoesNotExist:
+        return JsonResponse({'sucesso': False, 'mensagem': 'Efetivo não encontrado.'})
+    except Exception as e:
+        return JsonResponse({'sucesso': False, 'mensagem': str(e)})

@@ -13,6 +13,7 @@ urlpatterns = [
     path('excluir_efetivo_direto_padrao/<int:id>/', views.exclui_efetivo_direto_padrao, name='excluir_efetivo_direto_padrao'),
     #rotas que lidam com efetivo INdireto padrão
     path('controle_efetivo_indireto_padrao/', views.controle_efetivo_indireto_padrao, name='controle_efetivo_indireto_padrao'),
+    path('edita_efetivo_indireto_padrao_ajax/', views.edita_efetivo_indireto_padrao_ajax, name="edita_efetivo_indireto_padrao_ajax"),
    
     #path('controle_diarios/', views.controle_diarios, name='controle_diarios'),
    
