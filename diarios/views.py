@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from .models import Diarios, ServicosPadrao, Servicos, Efetivo_Direto_Padrao, Efetivo_Indireto_Padrao
 from utils.models import Historico_Edicao
+from contratos.models import Contratos
+from obras.models import Obras
 
 
 
@@ -239,3 +241,52 @@ def exclui_efetivo_indireto_padrao(request, id):
         messages.add_message(request, messages.ERROR, f"Não foi possível excluir o efetivo {efetivo_funcao}. Erro: {e}")
     
     return redirect("controle_efetivo_indireto_padrao")
+
+#views que lidam com diario
+
+@login_required
+def controle_diarios(request):
+    contratos = Contratos.objects.all().order_by("nome")
+    obras = None
+    diarios = []
+
+    contrato_id = request.GET.get("contrato")
+    obra_id = request.GET.get("obra")
+    data_inicio = request.GET.get("data_inicio")
+    data_fim = request.GET.get("data_fim")
+
+    if contrato_id:
+        obras = Obras.objects.filter(contrato_id=contrato_id)
+
+    if obra_id or (data_inicio and data_fim):
+        diarios = Diarios.objects.all()
+
+        if obra_id:
+            diarios = diarios.filter(obra_id=obra_id)
+        if data_inicio:
+            diarios = diarios.filter(data__gte=data_inicio)
+        if data_fim:
+            diarios = diarios.filter(data__lte=data_fim)
+
+    return render(
+        request,
+        "controle_diarios.html",
+        {
+            "contratos": contratos,
+            "obras": obras,
+            "diarios": diarios,
+        },
+    )
+
+@login_required
+def obras_por_contrato_ajax(request):
+    contrato_id = request.GET.get("contrato_id")
+    if not contrato_id:
+        return JsonResponse({"erro": "Contrato não informado."}, status=400)
+
+    obras = list(
+        Obras.objects.filter(contrato_id=contrato_id)
+        .values("id", "nome")
+        .order_by("nome")
+    )
+    return JsonResponse({"obras": obras})

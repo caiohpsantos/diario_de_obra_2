@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from .models import Contratos
 from utils.models import Historico_Edicao
 from .forms import formCadastraContrato, formEditaContrato
+from obras.models import Obras
+from diarios.models import Diarios
 
 # Create your views here.
 

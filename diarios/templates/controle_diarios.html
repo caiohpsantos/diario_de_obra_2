@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block conteudo %}
+<div class="container py-4">
+
+  <h3 class="mb-3">Controle de Diários de Obra</h3>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <form method="get" class="row g-2 align-items-end">
+
+        <!-- Contrato -->
+        <div class="col-md-4">
+          <label for="contrato" class="form-label fw-semibold small">Contrato</label>
+          <select name="contrato" id="contrato" class="form-select form-select-sm">
+            <option value="">-- Selecione --</option>
+            {% for contrato in contratos %}
+              <option value="{{ contrato.id }}" {% if request.GET.contrato == contrato.id|stringformat:'s' %}selected{% endif %}>{{ contrato.nome }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Obra (preenchido dinamicamente) -->
+        <div class="col-md-4">
+          <label for="obra" class="form-label fw-semibold small">Obra</label>
+          <select name="obra" id="obra" class="form-select form-select-sm">
+            <option value="">-- Escolha o contrato primeiro --</option>
+            {% if obras %}
+              {% for obra in obras %}
+                <option value="{{ obra.id }}" {% if request.GET.obra == obra.id|stringformat:'s' %}selected{% endif %}>{{ obra.nome }}</option>
+              {% endfor %}
+            {% endif %}
+          </select>
+        </div>
+
+        <!-- Período -->
+        <div class="col-md-2">
+          <label for="data_inicio" class="form-label fw-semibold small">De</label>
+          <input type="date" name="data_inicio" id="data_inicio" class="form-control form-control-sm" value="{{ request.GET.data_inicio }}">
+        </div>
+
+        <div class="col-md-2">
+          <label for="data_fim" class="form-label fw-semibold small">Até</label>
+          <input type="date" name="data_fim" id="data_fim" class="form-control form-control-sm" value="{{ request.GET.data_fim }}">
+        </div>
+
+        <!-- Botão -->
+        <div class="col-md-auto">
+          <button type="submit" class="btn btn-primary btn-sm mt-2">Pesquisar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Aqui você listaria os diários filtrados -->
+  {% if diarios %}
+    <div class="list-group">
+      {% for diario in diarios %}
+        <a href="{% url 'visualizar_diario' diario.id %}" class="list-group-item list-group-item-action">
+          <strong>{{ diario.obra.nome }}</strong> - {{ diario.data|date:"d/m/Y" }}
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info">Nenhum diário encontrado.</div>
+  {% endif %}
+</div>
+
+<!-- Script para carregar obras dinamicamente -->
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const contratoSelect = document.getElementById("contrato");
+    const obraSelect = document.getElementById("obra");
+
+    contratoSelect.addEventListener("change", function() {
+      const contratoId = this.value;
+      obraSelect.innerHTML = '<option value="">Carregando obras...</option>';
+
+      if (!contratoId) {
+        obraSelect.innerHTML = '<option value="">-- Escolha o contrato primeiro --</option>';
+        return;
+      }
+
+      fetch(`/diarios/obras_por_contrato_ajax/?contrato_id=${contratoId}`)
+        .then(resp => resp.json())
+        .then(data => {
+          obraSelect.innerHTML = '<option value="">-- Selecione --</option>';
+          data.obras.forEach(o => {
+            const opt = document.createElement("option");
+            opt.value = o.id;
+            opt.textContent = o.nome;
+            obraSelect.appendChild(opt);
+          });
+        })
+        .catch(err => {
+          console.error("Erro ao carregar obras:", err);
+          obraSelect.innerHTML = '<option value="">Erro ao carregar obras</option>';
+        });
+    });
+  });
+</script>
+{% endblock %}
