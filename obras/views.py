@@ -117,22 +117,22 @@ def edita_obra(request, id):
             alteracoes = {}
             
             if nome_antigo != form.cleaned_data['nome']:
-                alteracoes['nome'] = f"Foi alterado o campo Nome. De {obra.nome} para {form.cleaned_data['nome']}."
+                alteracoes['nome'] = f"Foi alterado o campo Nome. De {nome_antigo} para {form.cleaned_data['nome']}."
             if local_antigo != form.cleaned_data['local']:
-                alteracoes['local'] = f"Foi alterado o campo Local. De {obra.local} para {form.cleaned_data['local']}."
+                alteracoes['local'] = f"Foi alterado o campo Local. De {local_antigo} para {form.cleaned_data['local']}."
             novo_inicio = form.cleaned_data['inicio']
             if inicio_antigo != novo_inicio and novo_inicio:
-                alteracoes['inicio'] = f"Foi alterado o campo Data de Início. De {obra.inicio.strftime('%d/%m/%Y')} para {novo_inicio.strftime('%d/%m/%Y')}."
+                alteracoes['inicio'] = f"Foi alterado o campo Data de Início. De {inicio_antigo.strftime('%d/%m/%Y')} para {novo_inicio.strftime('%d/%m/%Y')}."
             novo_termino = form.cleaned_data['termino']
             if termino_antigo != novo_termino and novo_termino:
-                alteracoes['termino'] = f"Foi alterado o campo Previsão de Término. De {obra.termino.strftime('%d/%m/%Y')} para {novo_termino.strftime('%d/%m/%Y')}."
+                alteracoes['termino'] = f"Foi alterado o campo Previsão de Término. De {termino_antigo.strftime('%d/%m/%Y')} para {novo_termino.strftime('%d/%m/%Y')}."
             nova_situacao = form.cleaned_data['situacao']
             if situacao_antiga != nova_situacao:
-                alteracoes['situacao'] = f"Foi alterado o campo Situação. De {obra.get_situacao_display()} para {dict(Obras.SITUACAO_CHOICES)[nova_situacao]}."
+                alteracoes['situacao'] = f"Foi alterado o campo Situação. De {situacao_antiga} para {dict(Obras.SITUACAO_CHOICES)[nova_situacao]}."
             if contrato_antigo != form.cleaned_data['contrato']:
-                alteracoes['contrato'] = f"Foi alterado o campo Contrato. De {obra.contrato} para {form.cleaned_data['contrato']}."
+                alteracoes['contrato'] = f"Foi alterado o campo Contrato. De {contrato_antigo} para {form.cleaned_data['contrato']}."
             if empresa_antiga != form.cleaned_data['empresa_responsavel']:
-                alteracoes['empresa_responsavel'] = f"Foi alterado o campo Empresa Responsável. De {obra.empresa_responsavel} para {form.cleaned_data['empresa_responsavel']}."
+                alteracoes['empresa_responsavel'] = f"Foi alterado o campo Empresa Responsável. De {empresa_antiga} para {form.cleaned_data['empresa_responsavel']}."
             
              #Caso alteracoes tenha algum registro, itera sobre eles e salva todos em 'Historico_Edicao'
             if len(alteracoes.items()) > 0:

@@ -1,11 +1,15 @@
 import json
+from datetime import datetime
 from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from .models import Diarios, ServicosPadrao, Servicos, Efetivo_Direto_Padrao, Efetivo_Indireto_Padrao
+from .models import Diarios, ServicosPadrao, Servicos
+from .models import Efetivo_Direto, Efetivo_Direto_Padrao, Efetivo_Indireto, Efetivo_Indireto_Padrao
+from .forms import DiarioForm, ServicosForm
+from .forms import ServicoFormSet, EfetivoDiretoFormSet
 from utils.models import Historico_Edicao
 from contratos.models import Contratos
 from obras.models import Obras
@@ -290,3 +294,33 @@ def obras_por_contrato_ajax(request):
         .order_by("nome")
     )
     return JsonResponse({"obras": obras})
+
+@login_required
+def cadastra_diario(request):
+    if request.method == "POST":
+        diario_form = DiarioForm(request.POST)
+        servicos_form = ServicosForm(request.POST, prefix="servicos")
+        efetivo_formset = EfetivoDiretoFormSet(request.POST, prefix="efetivo_direto")
+    
+    elif request.method == "GET":
+        #monta form do básico do diário
+        form = DiarioForm()
+        #monta o form dos serviços
+        formset_servicos = ServicoFormSet(queryset=Servicos.objects.all())
+        #monta o form do efetivo direto
+        padroes = Efetivo_Direto_Padrao.objects.all()
+        initial_data = [
+            {"funcao": p.funcao, "qtde": p.qtde, "presente": p.presente}
+            for p in padroes
+        ]
+        
+        efetivo_formset = EfetivoDiretoFormSet(
+            queryset=Efetivo_Direto.objects.none(),
+            initial=initial_data,
+            prefix="efetivo_direto"
+        )
+
+
+    return render(request, 'cadastra_diario.html', {'form':form,
+                                                    "formset_servicos":formset_servicos,
+                                                    "formset_efetivo_direto": efetivo_formset,})

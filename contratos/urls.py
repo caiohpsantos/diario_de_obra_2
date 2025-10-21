@@ -8,6 +8,7 @@ urlpatterns = [
     path('cadastra_contrato/', views.cadastra_contrato, name='cadastra_contrato'),
     path('visualiza_contrato/<int:id>/', views.visualiza_contrato, name='visualiza_contrato'),
     path('edita_contrato/<int:id>/', views.edita_contrato, name='edita_contrato'),
-    path('exclui_contrato/<int:id>/', views.exclui_contrato, name='exclui_contrato')
+    path('exclui_contrato/<int:id>/', views.exclui_contrato, name='exclui_contrato'),
+    path('obras_por_contrato/<int:id>/', views.obras_por_contrato, name="obras_por_contrato"),
 
 ]

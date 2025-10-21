@@ -17,7 +17,7 @@ urlpatterns = [
     path('excluir_efetivo_indireto_padrao/<int:id>/', views.exclui_efetivo_indireto_padrao, name='excluir_efetivo_indireto_padrao'),
     #rotas que lidam com os diarios
     path('controle_diarios/', views.controle_diarios, name='controle_diarios'),
-    path("obras_por_contrato_ajax/", views.obras_por_contrato_ajax, name="obras_por_contrato_ajax"),
+    path("cadastra_diario", views.cadastra_diario, name='cadastra_diario')
     
 
 ]

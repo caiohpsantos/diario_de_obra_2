@@ -62,7 +62,7 @@ class formCadastraContrato(forms.Form):
             raise forms.ValidationError("Este nome de contrato já está em uso.")
         return nome
      
-class formEditaContrato(forms.Form):
+class formEditaContrato(forms.ModelForm):
     '''
     Classe responsável pela criação do formulário de edição de contrato.
 

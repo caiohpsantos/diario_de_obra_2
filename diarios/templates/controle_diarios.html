@@ -3,8 +3,12 @@
 
 {% block conteudo %}
 <div class="container py-4">
-
-  <h3 class="mb-3">Controle de Diários de Obra</h3>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Controle de Diários</h2>
+    <a class="btn btn-primary btn-sm" href="{% url 'cadastra_diario' %}">
+      <i class="bi bi-folder-plus"></i> Novo Diário
+    </a>
+  </div>
 
   <div class="card shadow-sm mb-4">
     <div class="card-body">
@@ -57,7 +61,7 @@
   {% if diarios %}
     <div class="list-group">
       {% for diario in diarios %}
-        <a href="{% url 'visualizar_diario' diario.id %}" class="list-group-item list-group-item-action">
+        <a href="#" class="list-group-item list-group-item-action">
           <strong>{{ diario.obra.nome }}</strong> - {{ diario.data|date:"d/m/Y" }}
         </a>
       {% endfor %}

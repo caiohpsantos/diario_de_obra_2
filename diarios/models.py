@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models.fields import CharField, IntegerField, DateTimeField
+from django.db.models.fields import CharField, IntegerField, DateField, DateTimeField
 from django.db.models import ForeignKey
 from obras.models import Obras
 
@@ -13,7 +13,7 @@ class Diarios(models.Model):
 
     Attributes:
         id(Integer): Identificação única do diário, chave primária
-        data(DateTime): Data que o diário registra. No formato dd/mm/aaaa
+        dia(DateTime): Data que o diário registra. No formato dd/mm/aaaa
         clima_manha(String): Especifica o clima no turno da manhã com, no máximo, 20 caracteres
         clima_tarde(String): Especifica o clima no turno da tarde com, no máximo, 20 caracteres
         clima_noite(String): Especifica o clima no turno da noite com, no máximo, 20 caracteres
@@ -24,15 +24,13 @@ class Diarios(models.Model):
         
     '''
     opcoes = [("limpo", "Limpo"), ("nublado", "Nublado"), ("chuva","Chuva"), ("impraticavel","Impraticável")]
-    data = DateTimeField()
+    dia = DateField(null=False)
     clima_manha = CharField(max_length=20, null=False, choices=opcoes)
     clima_tarde = CharField(max_length=20, null=False,  choices=opcoes)
     clima_noite = CharField(max_length=20, null=False,  choices=opcoes)
-    clima_madrugada = CharField(max_length=20, null=False)
+    clima_madrugada = CharField(max_length=20, null=False, choices=opcoes)
     observacoes = CharField(max_length=255, null=False)
     obra = models.ForeignKey(Obras, on_delete=models.DO_NOTHING, null=False)
-    created_at = DateTimeField(auto_now_add=True)
-    usuario_criador = CharField(max_length=100)
 
     def __str__(self):
         return f"{self.obra.contrato.nome} - {self.obra.nome} / DIÁRIO {self.id} de {self.data.strftime('%d/%m/%Y')}"
@@ -52,14 +50,15 @@ class ServicosPadrao(models.Model):
 
 class Servicos(models.Model):
     '''
-    Armazena os serviços registrados para o diário
+    Armazena os serviços registrados para o diário. Limitado a 14 registros por diário
+    por limitações de espaço no relatório
 
     Attributes:
         id(Integer): Identificação única do serviço, chave primária
         servicos_padrao_id(Integer): Identificação do serviço escolhido das opções de serviço padrão, chave estrangeira
         item(Integer): Especifica a posição do item dentre os armazenados
         referencia(Integer): Especifica o local em que o serviço foi feito com, no máximo 100 caracteres
-        diario_id(Integer): Especifica o diário no qual esse serviço está contido
+        diario(Integer): Especifica o diário no qual esse serviço está contido
     '''
 
     servicos_padrao = models.ForeignKey(ServicosPadrao, on_delete=models.DO_NOTHING)

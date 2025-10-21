@@ -1,4 +1,5 @@
 
+from django.http import JsonResponse
 from django.db.models import Count
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -9,6 +10,7 @@ from utils.models import Historico_Edicao
 from .forms import formCadastraContrato, formEditaContrato
 from obras.models import Obras
 from diarios.models import Diarios
+
 
 # Create your views here.
 
@@ -79,11 +81,13 @@ def edita_contrato(request, id):
     #Caso o request seja POST instancia o formulário com os dados recebidos
     else:
         form = formEditaContrato(request.POST, instance=contrato)
+        #ao ser desmarcado, o campo ativo não vem no POST, por isso precisa capturar o valor antes de validar o form
+        antigo_ativo = contrato.ativo
         if form.is_valid():
            
             #Descobre qual campo foi alterado e salva uma frase explicativa no dicionario 'alteracoes'
             alteracoes = {}
-            if contrato.ativo != form.cleaned_data['ativo']:
+            if contrato.ativo != antigo_ativo:
                 alteracoes['ativo'] = f'Foi alterado o campo "Ativo". De {status_ativo(contrato.ativo)} para {status_ativo(form.cleaned_data["ativo"])}.'
             if contrato.numero != form.cleaned_data['numero']:
                 alteracoes['numero'] = f'Foi alterado o campo "Número". De "{contrato.numero}" para "{form.cleaned_data["numero"]}"'
@@ -161,4 +165,8 @@ def exclui_contrato(request,id):
                              messages.SUCCESS,
                              f"O contrato {nome_contrato} foi excluído com sucesso.")
         return redirect('controle_contratos')
-    
+
+@login_required
+def obras_por_contrato(request,id):
+    obras = Obras.objects.filter(contrato_id=id, situacao="andamento").values("id", "nome")
+    return JsonResponse(list(obras), safe=False)
