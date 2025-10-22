@@ -110,42 +110,69 @@
   <!-- Efetivo Direto -->
   <h5 class="mt-4">Efetivo Direto</h5>
 
-  <div class="form-check mb-2">
-    <input class="form-check-input" type="checkbox" id="toggle-efetivo">
-    <label class="form-check-label" for="toggle-efetivo">
-      Editar efetivo direto padrão
-    </label>
-  </div>
+<div class="form-check mb-3">
+  <input class="form-check-input" type="checkbox" id="toggle-efetivo">
+  <label class="form-check-label" for="toggle-efetivo">
+    Editar efetivo direto padrão
+  </label>
+</div>
 
-  <!-- 🔹 Efetivo Direto (escondido até clicar em "Editar") -->
-  <div id="efetivo-container" style="display:none;">
-    {{ efetivo_formset.management_form }}
-    {% for form in efetivo_formset %}
-    <div class="efetivo-form border rounded p-2 mb-2">
-      <div class="row g-2 align-items-center">
-        <div class="col-md-6">
-          {{ form.funcao.label_tag }} {{ form.funcao }}
-        </div>
-        <div class="col-md-3">
-          {{ form.qtde.label_tag }} {{ form.qtde }}
-        </div>
-        <div class="col-md-3">
-          {{ form.presente.label_tag }} {{ form.presente }}
-        </div>
-        <div class="col-md-12 text-end mt-1">
-          <button type="button" class="btn btn-outline-danger btn-sm remove-efetivo">Remover</button>
-        </div>
+<!-- 🔸 Modo leitura (mostra os dados padrões) -->
+<div id="efetivo-leitura">
+  <table class="table table-sm table-bordered align-middle text-center">
+    <thead class="table-light">
+      <tr>
+        <th>Função</th>
+        <th>Qtd.</th>
+        <th>Presente</th>
+        <th>Ausente</th>
+        <th>Efetivo</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in padroes %}
+      <tr>
+        <td>{{ p.funcao }}</td>
+        <td>{{ p.qtde }}</td>
+        <td>{{ p.presente }}</td>
+        <td>{{ p.ausente }}</td>
+        <td>{{ p.efetivo }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5">Nenhum efetivo padrão cadastrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- 🔸 Modo edição (formset oculto até marcar o checkbox) -->
+<div id="efetivo-edicao" style="display:none;">
+  {{ formset_efetivo_direto.management_form }}
+  {% for form in formset_efetivo_direto %}
+  <div class="efetivo-form border rounded p-2 mb-2">
+    <div class="row g-2 align-items-center">
+      <div class="col-md-4">{{ form.funcao.label_tag }} {{ form.funcao }}</div>
+      <div class="col-md-2">{{ form.qtde.label_tag }} {{ form.qtde }}</div>
+      <div class="col-md-2">{{ form.presente.label_tag }} {{ form.presente }}</div>
+      <div class="col-md-2">
+        <label class="form-label">Ausente</label>
+        <input type="number" class="form-control form-control-sm ausente" readonly>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Efetivo</label>
+        <input type="number" class="form-control form-control-sm efetivo" readonly>
       </div>
     </div>
-    {% endfor %}
   </div>
+  {% endfor %}
+</div>
 
-
-<button type="button" id="add-efetivo" class="btn btn-sm btn-primary mt-2" style="display:none;">
-  Adicionar função
+<button type="button" id="add-efetivo" class="btn btn-sm btn-success mt-2" style="display:none;">
+  <i class='bi bi-plus-circle'> Adicionar função </i>
 </button>
 
-
+<hr>
+<h5 class="mt-4">Efetivo Direto</h5>
 
   <div class="mt-4 text-end">
     <button type="submit" class="btn btn-primary btn-sm">Salvar Diário</button>

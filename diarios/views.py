@@ -313,14 +313,20 @@ def cadastra_diario(request):
             {"funcao": p.funcao, "qtde": p.qtde, "presente": p.presente}
             for p in padroes
         ]
-        
+
         efetivo_formset = EfetivoDiretoFormSet(
             queryset=Efetivo_Direto.objects.none(),
             initial=initial_data,
             prefix="efetivo_direto"
         )
 
-
-    return render(request, 'cadastra_diario.html', {'form':form,
-                                                    "formset_servicos":formset_servicos,
-                                                    "formset_efetivo_direto": efetivo_formset,})
+    return render(
+        request,
+        "cadastra_diario.html",
+        {
+            "form": form,
+            "formset_servicos": formset_servicos,
+            "formset_efetivo_direto": efetivo_formset,
+            "padroes": padroes,  # para exibição inicial (somente leitura)
+        },
+    )

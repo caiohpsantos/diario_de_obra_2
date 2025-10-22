@@ -122,14 +122,13 @@ class EfetivoDiretoForm(forms.ModelForm):
         widgets = {
             "funcao": forms.TextInput(attrs={"class": "form-control form-control-sm"}),
             "qtde": forms.NumberInput(attrs={"class": "form-control form-control-sm", "min": 0}),
-            "presente": forms.NumberInput(attrs={"class": "form-control form-control-sm", "min": 0}),
+            "presente": forms.NumberInput(attrs={"class": "form-control form-control-sm", "min": 0})
         }
 
 # Formset (permite múltiplos registros de efetivo direto por diário)
 EfetivoDiretoFormSet = modelformset_factory(
     Efetivo_Direto,
     form=EfetivoDiretoForm,
-    extra=0,
-    can_delete=True
+    extra=int(Efetivo_Direto_Padrao.objects.all().count())
 )
 

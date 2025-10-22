@@ -59,43 +59,53 @@ document.addEventListener("DOMContentLoaded", () => {
   atualizarNumeracao();
 });
 
-// lida com o formset de efetivo direto
 document.addEventListener("DOMContentLoaded", () => {
   const toggle = document.getElementById("toggle-efetivo");
-  const container = document.getElementById("efetivo-container");
+  const leitura = document.getElementById("efetivo-leitura");
+  const edicao = document.getElementById("efetivo-edicao");
   const addBtn = document.getElementById("add-efetivo");
-  const totalForms = document.querySelector("#id_efetivo-TOTAL_FORMS");
+  const totalForms = document.querySelector("#id_efetivo_direto-TOTAL_FORMS");
 
+  // 🔹 Alterna exibição entre leitura e edição
   toggle.addEventListener("change", () => {
     const show = toggle.checked;
-    container.style.display = show ? "block" : "none";
+    leitura.style.display = show ? "none" : "block";
+    edicao.style.display = show ? "block" : "none";
     addBtn.style.display = show ? "inline-block" : "none";
   });
 
-  addBtn.addEventListener("click", () => {
-    const currentForms = parseInt(totalForms.value);
-    const newForm = container.querySelector(".efetivo-form").cloneNode(true);
+  // 🔹 Atualiza campos "ausente" e "efetivo" dinamicamente
+  edicao.addEventListener("input", (e) => {
+    if (e.target.name.includes("qtde") || e.target.name.includes("presente")) {
+      const form = e.target.closest(".efetivo-form");
+      const qtde = form.querySelector(`[name*='qtde']`).value || 0;
+      const presente = form.querySelector(`[name*='presente']`).value || 0;
+      const ausente = form.querySelector(".ausente");
+      const efetivo = form.querySelector(".efetivo");
 
-    newForm.querySelectorAll("input").forEach(input => {
-      input.name = input.name.replace(/-\d+-/, `-${currentForms}-`);
-      input.id = input.id.replace(/-\d+-/, `-${currentForms}-`);
-      input.value = "";
-    });
-
-    container.appendChild(newForm);
-    totalForms.value = currentForms + 1;
-  });
-
-  container.addEventListener("click", (e) => {
-    if (e.target.classList.contains("remove-efetivo")) {
-      const forms = container.querySelectorAll(".efetivo-form");
-      if (forms.length > 1) {
-        e.target.closest(".efetivo-form").remove();
-        totalForms.value = parseInt(totalForms.value) - 1;
-      }
+      ausente.value = Math.max(0, qtde - presente);
+      efetivo.value = presente;
     }
   });
+
+  // 🔹 Adicionar novo formulário
+  addBtn.addEventListener("click", () => {
+    const currentForms = parseInt(totalForms.value);
+    const newForm = edicao.querySelector(".efetivo-form").cloneNode(true);
+
+    newForm.querySelectorAll("input").forEach(input => {
+      if (input.name) {
+        input.name = input.name.replace(/-\d+-/, `-${currentForms}-`);
+        input.id = input.id.replace(/-\d+-/, `-${currentForms}-`);
+      }
+      if (!input.classList.contains("ausente") && !input.classList.contains("efetivo")) {
+        input.value = "";
+      } else {
+        input.value = "";
+      }
+    });
+
+    edicao.appendChild(newForm);
+    totalForms.value = currentForms + 1;
+  });
 });
-
-
-

@@ -110,6 +110,14 @@ class Efetivo_Direto(models.Model):
     presente = IntegerField(null=False)
     diario = ForeignKey(Diarios, on_delete=models.DO_NOTHING)
 
+    @property
+    def ausente(self):
+        return self.qtde - self.presente
+    
+    @property
+    def efetivo(self):
+        return self.presente
+
     def __str__(self):
         return f"{self.funcao} | Qtde: {self.qtde} | Presente:{self.presente}"
 
