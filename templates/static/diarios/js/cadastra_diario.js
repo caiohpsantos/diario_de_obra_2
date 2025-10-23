@@ -109,3 +109,19 @@ document.addEventListener("DOMContentLoaded", () => {
     totalForms.value = currentForms + 1;
   });
 });
+
+// 🔹 Aciona o botão "Adicionar Serviço" ao pressionar Enter no campo de referência
+document.addEventListener("DOMContentLoaded", () => {
+  const container = document.getElementById("servicos-container");
+  const addBtn = document.getElementById("add-servico");
+
+  container.addEventListener("keydown", (event) => {
+    const isReferencia = event.target.name && event.target.name.includes("referencia");
+
+    // Se o campo é de referência e a tecla pressionada é Enter
+    if (isReferencia && event.key === "Enter") {
+      event.preventDefault(); // Evita envio do formulário
+      addBtn.click();         // Simula o clique no botão de adicionar
+    }
+  });
+});

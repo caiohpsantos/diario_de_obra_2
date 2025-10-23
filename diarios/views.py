@@ -283,19 +283,6 @@ def controle_diarios(request):
     )
 
 @login_required
-def obras_por_contrato_ajax(request):
-    contrato_id = request.GET.get("contrato_id")
-    if not contrato_id:
-        return JsonResponse({"erro": "Contrato não informado."}, status=400)
-
-    obras = list(
-        Obras.objects.filter(contrato_id=contrato_id)
-        .values("id", "nome")
-        .order_by("nome")
-    )
-    return JsonResponse({"obras": obras})
-
-@login_required
 def cadastra_diario(request):
     if request.method == "POST":
         diario_form = DiarioForm(request.POST)

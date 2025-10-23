@@ -30,50 +30,64 @@
   
   <hr>
   <!-- Climas -->
-  <h5 class="mt-4">Tempo/Turno</h5>
-  <div class="row g-3 mt-3">
+<h5 class="mt-4">Tempo/Turno</h5>
+<div class="row g-3 mt-3">
 
-    <div class="col-md-3">
-      <label class="form-label fw-semibold small">{{ form.clima_manha.label }}</label>
-      {% for radio in form.clima_manha %}
-        <div class="form-check">
-          {{ radio.tag }}
-          <label class="form-check-label">{{ radio.choice_label }}</label>
-        </div>
-      {% endfor %}
-    </div>
-
-    <div class="col-md-3">
-      <label class="form-label fw-semibold small">{{ form.clima_tarde.label }}</label>
-      {% for radio in form.clima_tarde %}
-        <div class="form-check">
-          {{ radio.tag }}
-          <label class="form-check-label">{{ radio.choice_label }}</label>
-        </div>
-      {% endfor %}
-    </div>
-
-    <div class="col-md-3">
-      <label class="form-label fw-semibold small">{{ form.clima_noite.label }}</label>
-      {% for radio in form.clima_noite %}
-        <div class="form-check">
-          {{ radio.tag }}
-          <label class="form-check-label">{{ radio.choice_label }}</label>
-        </div>
-      {% endfor %}
-    </div>
-
-    <div class="col-md-3">
-      <label class="form-label fw-semibold small">{{ form.clima_madrugada.label }}</label>
-      {% for radio in form.clima_madrugada %}
-        <div class="form-check">
-          {{ radio.tag }}
-          <label class="form-check-label">{{ radio.choice_label }}</label>
-        </div>
-      {% endfor %}
-    </div>
+  <!-- Manhã -->
+  <div class="col-md-3">
+    <label class="form-label fw-semibold small">{{ form.clima_manha.label }}</label>
+    {% for radio in form.clima_manha %}
+      <div class="form-check">
+        {{ radio.tag }}
+        <label class="form-check-label" for="{{ radio.id_for_label }}">
+          {{ radio.choice_label }}
+        </label>
+      </div>
+    {% endfor %}
   </div>
-  <hr>
+
+  <!-- Tarde -->
+  <div class="col-md-3">
+    <label class="form-label fw-semibold small">{{ form.clima_tarde.label }}</label>
+    {% for radio in form.clima_tarde %}
+      <div class="form-check">
+        {{ radio.tag }}
+        <label class="form-check-label" for="{{ radio.id_for_label }}">
+          {{ radio.choice_label }}
+        </label>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Noite -->
+  <div class="col-md-3">
+    <label class="form-label fw-semibold small">{{ form.clima_noite.label }}</label>
+    {% for radio in form.clima_noite %}
+      <div class="form-check">
+        {{ radio.tag }}
+        <label class="form-check-label" for="{{ radio.id_for_label }}">
+          {{ radio.choice_label }}
+        </label>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Madrugada -->
+  <div class="col-md-3">
+    <label class="form-label fw-semibold small">{{ form.clima_madrugada.label }}</label>
+    {% for radio in form.clima_madrugada %}
+      <div class="form-check">
+        {{ radio.tag }}
+        <label class="form-check-label" for="{{ radio.id_for_label }}">
+          {{ radio.choice_label }}
+        </label>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+<hr>
+
   
   <!-- Serviços -->
   <h5 class="mt-4">Serviços</h5>
@@ -172,7 +186,7 @@
 </button>
 
 <hr>
-<h5 class="mt-4">Efetivo Direto</h5>
+<h5 class="mt-4">Efetivo Indireto</h5>
 
   <div class="mt-4 text-end">
     <button type="submit" class="btn btn-primary btn-sm">Salvar Diário</button>
