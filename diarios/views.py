@@ -9,7 +9,7 @@ from django.views.decorators.http import require_POST
 from .models import Diarios, ServicosPadrao, Servicos
 from .models import Efetivo_Direto, Efetivo_Direto_Padrao, Efetivo_Indireto, Efetivo_Indireto_Padrao
 from .forms import DiarioForm, ServicosForm
-from .forms import ServicoFormSet, EfetivoDiretoFormSet
+from .forms import ServicoFormSet, EfetivoDiretoFormSet, EfetivoIndiretoFormSet
 from utils.models import Historico_Edicao
 from contratos.models import Contratos
 from obras.models import Obras
@@ -295,16 +295,29 @@ def cadastra_diario(request):
         #monta o form dos serviços
         formset_servicos = ServicoFormSet(queryset=Servicos.objects.all())
         #monta o form do efetivo direto
-        padroes = Efetivo_Direto_Padrao.objects.all()
-        initial_data = [
-            {"funcao": p.funcao, "qtde": p.qtde, "presente": p.presente}
-            for p in padroes
+        padroes_efetivo_direto = Efetivo_Direto_Padrao.objects.all()
+        initial_data_direto = [
+            {"funcao": pd.funcao, "qtde": pd.qtde, "presente": pd.presente}
+            for pd in padroes_efetivo_direto
         ]
 
-        efetivo_formset = EfetivoDiretoFormSet(
+        efetivo_direto_formset = EfetivoDiretoFormSet(
             queryset=Efetivo_Direto.objects.none(),
-            initial=initial_data,
+            initial=initial_data_direto,
             prefix="efetivo_direto"
+        )
+
+        #monta o form do efetivo indireto
+        padroes_efetivo_indireto = Efetivo_Indireto_Padrao.objects.all()
+        initial_data_indireto = [
+            {"funcao": pi.funcao, "efetivo": pi.efetivo}
+            for pi in padroes_efetivo_indireto
+        ]
+
+        efetivo_indireto_formset = EfetivoIndiretoFormSet(
+            queryset=Efetivo_Indireto.objects.none(),
+            initial=initial_data_indireto,
+            prefix="efetivo_indireto"
         )
 
     return render(
@@ -313,7 +326,9 @@ def cadastra_diario(request):
         {
             "form": form,
             "formset_servicos": formset_servicos,
-            "formset_efetivo_direto": efetivo_formset,
-            "padroes": padroes,  # para exibição inicial (somente leitura)
+            "formset_efetivo_direto": efetivo_direto_formset,
+            "formset_efetivo_indireto": efetivo_indireto_formset,
+            "padroes_direto": padroes_efetivo_direto,
+            "padroes_indireto": padroes_efetivo_indireto,  # para exibição inicial (somente leitura)
         },
     )

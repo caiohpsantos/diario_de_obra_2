@@ -80,7 +80,6 @@ class DiarioForm(forms.ModelForm):
         input_formats = {
         "dia": ["%Y-%m-%d"]}
 
-
 class ServicosForm(forms.ModelForm):
     '''
     Classe responsável por gerar o formulário de registro dos serviços prestados
@@ -132,3 +131,21 @@ EfetivoDiretoFormSet = modelformset_factory(
     extra=int(Efetivo_Direto_Padrao.objects.all().count())
 )
 
+class EfetivoIndiretoForm(forms.ModelForm):
+    '''
+    Classe responsável por gerar formulário de cadastro do efetivo indireto
+    campos: função e efetivo
+    '''
+    class Meta:
+        model = Efetivo_Indireto
+        fields = ['funcao', 'efetivo']
+        widgets = {
+            "funcao": forms.TextInput(attrs={"class": "form-control form-control-sm"}),
+            "efetivo": forms.NumberInput(attrs={"class": "form-control form-control-sm", "min": 0})
+        }
+
+EfetivoIndiretoFormSet = modelformset_factory(
+    Efetivo_Indireto,
+    EfetivoIndiretoForm,
+    extra=int(Efetivo_Indireto_Padrao.objects.all().count())
+)

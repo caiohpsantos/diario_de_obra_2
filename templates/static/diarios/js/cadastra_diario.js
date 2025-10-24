@@ -59,11 +59,12 @@ document.addEventListener("DOMContentLoaded", () => {
   atualizarNumeracao();
 });
 
+//lida com o efetio direto
 document.addEventListener("DOMContentLoaded", () => {
-  const toggle = document.getElementById("toggle-efetivo");
-  const leitura = document.getElementById("efetivo-leitura");
-  const edicao = document.getElementById("efetivo-edicao");
-  const addBtn = document.getElementById("add-efetivo");
+  const toggle = document.getElementById("toggle-efetivo-direto");
+  const leitura = document.getElementById("efetivo-direto-leitura");
+  const edicao = document.getElementById("efetivo-direto-edicao");
+  const addBtn = document.getElementById("add-efetivo-direto");
   const totalForms = document.querySelector("#id_efetivo_direto-TOTAL_FORMS");
 
   // 🔹 Alterna exibição entre leitura e edição
@@ -120,6 +121,51 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Se o campo é de referência e a tecla pressionada é Enter
     if (isReferencia && event.key === "Enter") {
+      event.preventDefault(); // Evita envio do formulário
+      addBtn.click();         // Simula o clique no botão de adicionar
+    }
+  });
+});
+
+// lida com o form de efetivo indireto
+// Lida com o formulário de Efetivo Indireto
+document.addEventListener("DOMContentLoaded", () => {
+  const toggle = document.getElementById("toggle-efetivo-indireto");
+  const leitura = document.getElementById("efetivo-indireto-leitura");
+  const edicao = document.getElementById("efetivo-indireto-edicao");
+  const addBtnContainer = document.getElementById("add-efetivo-indireto-container");
+  const addBtn = document.getElementById("add-efetivo-indireto");
+  const totalForms = document.querySelector("#id_efetivo_indireto-TOTAL_FORMS");
+
+  // 🔹 Alterna exibição entre leitura e edição
+  toggle.addEventListener("change", () => {
+    const show = toggle.checked;
+    leitura.style.display = show ? "none" : "block";
+    edicao.style.display = show ? "block" : "none";
+    addBtnContainer.style.display = show ? "block" : "none";
+  });
+
+  // 🔹 Adicionar novo formulário
+  addBtn.addEventListener("click", () => {
+    const currentForms = parseInt(totalForms.value);
+    const newForm = edicao.querySelector(".efetivo-indireto-form").cloneNode(true);
+
+    // Atualiza índices e limpa valores
+    newForm.querySelectorAll("input, select").forEach(input => {
+      if (input.name) {
+        input.name = input.name.replace(/-\d+-/, `-${currentForms}-`);
+        input.id = input.id.replace(/-\d+-/, `-${currentForms}-`);
+      }
+      input.value = "";
+    });
+
+    edicao.appendChild(newForm);
+    totalForms.value = currentForms + 1;
+  });
+
+  // 🔹 Pressionar Enter no campo "efetivo" adiciona nova função
+  edicao.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && event.target.name && event.target.name.includes("efetivo")) {
       event.preventDefault(); // Evita envio do formulário
       addBtn.click();         // Simula o clique no botão de adicionar
     }
