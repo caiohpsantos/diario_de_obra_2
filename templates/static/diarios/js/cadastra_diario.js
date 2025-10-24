@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
   atualizarNumeracao();
 });
 
-//lida com o efetio direto
+// Lida com o efetivo direto
 document.addEventListener("DOMContentLoaded", () => {
   const toggle = document.getElementById("toggle-efetivo-direto");
   const leitura = document.getElementById("efetivo-direto-leitura");
@@ -109,25 +109,39 @@ document.addEventListener("DOMContentLoaded", () => {
     edicao.appendChild(newForm);
     totalForms.value = currentForms + 1;
   });
+
+  // 🔹 Remover formulário
+  edicao.addEventListener("click", (e) => {
+    if (e.target.classList.contains("remove-efetivo-direto") || e.target.closest(".remove-efetivo-direto")) {
+      const forms = edicao.querySelectorAll(".efetivo-form");
+      if (forms.length > 1) {
+        e.target.closest(".efetivo-form").remove();
+        totalForms.value = parseInt(totalForms.value) - 1;
+      } else {
+        alert("Deve haver pelo menos um registro de efetivo direto.");
+      }
+    }
+  });
 });
+
 
 // 🔹 Aciona o botão "Adicionar Serviço" ao pressionar Enter no campo de referência
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("servicos-container");
   const addBtn = document.getElementById("add-servico");
 
-  container.addEventListener("keydown", (event) => {
-    const isReferencia = event.target.name && event.target.name.includes("referencia");
-
-    // Se o campo é de referência e a tecla pressionada é Enter
-    if (isReferencia && event.key === "Enter") {
-      event.preventDefault(); // Evita envio do formulário
-      addBtn.click();         // Simula o clique no botão de adicionar
-    }
-  });
+  if (container && addBtn) {
+    container.addEventListener("keydown", (event) => {
+      const isReferencia = event.target.name && event.target.name.includes("referencia");
+      if (isReferencia && event.key === "Enter") {
+        event.preventDefault();
+        addBtn.click();
+      }
+    });
+  }
 });
 
-// lida com o form de efetivo indireto
+
 // Lida com o formulário de Efetivo Indireto
 document.addEventListener("DOMContentLoaded", () => {
   const toggle = document.getElementById("toggle-efetivo-indireto");
@@ -168,6 +182,19 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.key === "Enter" && event.target.name && event.target.name.includes("efetivo")) {
       event.preventDefault(); // Evita envio do formulário
       addBtn.click();         // Simula o clique no botão de adicionar
+    }
+  });
+
+  // 🔹 Remover formulário
+  edicao.addEventListener("click", (e) => {
+    if (e.target.classList.contains("remove-efetivo-indireto") || e.target.closest(".remove-efetivo-indireto")) {
+      const forms = edicao.querySelectorAll(".efetivo-indireto-form");
+      if (forms.length > 1) {
+        e.target.closest(".efetivo-indireto-form").remove();
+        totalForms.value = parseInt(totalForms.value) - 1;
+      } else {
+        alert("Deve haver pelo menos um registro de efetivo indireto.");
+      }
     }
   });
 });
