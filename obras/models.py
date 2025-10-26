@@ -1,4 +1,4 @@
-from django.db import models
+from django.contrib.gis.db import models
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from django.db.models.fields import CharField, DateField
@@ -20,6 +20,7 @@ class Obras(models.Model):
         contrato(ForeignKey): Instãncia do contrato a que esta obra pertence. Chave estrangeira da tabela 'contrato'.
         empresa_responsavel(String): Empresa responsável pela execução do contrato (construtora/empreiteira)
             com, no máximo, 200 caracteres
+        area(polygon): Marca a forma ou desenho da área da obra no mapa fornecido.
     '''
 
     ANDAMENTO = "andamento"
@@ -41,6 +42,7 @@ class Obras(models.Model):
         default="andamento")
     contrato = ForeignKey(Contratos, on_delete=models.DO_NOTHING, null=False)
     empresa_responsavel = CharField(max_length=200, null=False)
+    area = models.PolygonField(srid=4326, null=True, blank=True)
 
     def __str__(self):
         return f"Obra {self.nome} do contrato {self.contrato.nome if self.contrato else 'Sem contrato associado'}"

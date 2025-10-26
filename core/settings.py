@@ -72,11 +72,16 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'rudra',
+        'USER': 'postgres',          # ou seu usuário
+        'PASSWORD': None,
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
+
 
 
 # Password validation
@@ -154,3 +159,6 @@ MESSAGE_TAGS = {
     constants.WARNING:"alert alert-warning"
 
 }
+
+
+
