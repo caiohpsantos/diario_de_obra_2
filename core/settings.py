@@ -27,8 +27,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "crispy_forms",
-    "crispy_bootstrap5",
+    'crispy_forms',
+    'crispy_bootstrap5',
+    'leaflet',
     "usuarios",
     "utils",
     "contratos",
@@ -75,9 +76,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'rudra',
-        'USER': 'postgres',          # ou seu usuário
-        'PASSWORD': None,
-        'HOST': 'localhost',
+        'USER': 'postgres',
+        'PASSWORD': 's3gur4mesmo',
+        'HOST': '127.0.0.1',
         'PORT': '5432',
     }
 }
@@ -160,5 +161,15 @@ MESSAGE_TAGS = {
 
 }
 
+#configuração do Leaflet
+LEAFLET_CONFIG = {
+    "DEFAULT_CENTER": (-16.40, -49.15),  # centro inicial (Goiânia-GO)
+    "DEFAULT_ZOOM": 4,
+    "MAX_ZOOM": 20,
+    "MIN_ZOOM": 3,
+    "SCALE": "metric",
+    "DRAW": True,
+    "RESET_VIEW": False,
+}
 
 

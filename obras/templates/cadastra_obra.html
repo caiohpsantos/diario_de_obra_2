@@ -1,4 +1,10 @@
 {% extends "base.html" %}
+{% load leaflet_tags %}
+
+{% block cabecalho %}
+    {% leaflet_js %}
+    {% leaflet_css %}
+{% endblock %}
 
 {% block conteudo %}
 <div class="container mt-5">
@@ -52,6 +58,16 @@
                         <div class="mb-3">
                             <label for="id_empresa_responsavel" class="form-label">Empresa Responsável</label>
                             {{ form.empresa_responsavel }}
+                        </div>
+
+                        <!-- Campo do mapa -->
+                        <div class="mb-4">
+                            <label for="id_area" class="form-label fw-bold">Área da Obra (Desenhe no mapa)</label>
+                            <p class="text-muted small mb-2">
+                                Use as ferramentas do mapa abaixo para desenhar o limite da obra.
+                            </p>
+                            {{ form.area }}
+                            {{ form.media }}
                         </div>
 
                         <div class="d-flex justify-content-between">

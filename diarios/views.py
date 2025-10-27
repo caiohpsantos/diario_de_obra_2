@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 from django.db.models import Count
+from django.forms import modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib import messages
@@ -8,8 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from .models import Diarios, ServicosPadrao, Servicos
 from .models import Efetivo_Direto, Efetivo_Direto_Padrao, Efetivo_Indireto, Efetivo_Indireto_Padrao
-from .forms import DiarioForm, ServicosForm
-from .forms import ServicoFormSet, EfetivoDiretoFormSet, EfetivoIndiretoFormSet
+from .forms import Diario_Form, Servicos_Form, Efetivo_Direto_Form, Efetivo_Indireto_Form
 from utils.models import Historico_Edicao
 from contratos.models import Contratos
 from obras.models import Obras
@@ -250,21 +250,30 @@ def exclui_efetivo_indireto_padrao(request, id):
 
 @login_required
 def controle_diarios(request):
+    '''
+    Controle de diários, permitindo consultar, visualizar ou excluir um diário.
+    Importante: diários que já foram usados em relatórios não podem ser editados ou excluídos
+    '''
+
+    #recupera todos os contratos
     contratos = Contratos.objects.all().order_by("nome")
+    #obras fica vazia pois será consultada após contrato ser escolhido
     obras = None
     diarios = []
 
+    #recupera os valores escolhidos para cada campo
     contrato_id = request.GET.get("contrato")
     obra_id = request.GET.get("obra")
     data_inicio = request.GET.get("data_inicio")
     data_fim = request.GET.get("data_fim")
 
+    #realiza as consultas caso o campo tenha recebido algum valor
     if contrato_id:
         obras = Obras.objects.filter(contrato_id=contrato_id)
 
     if obra_id or (data_inicio and data_fim):
         diarios = Diarios.objects.all()
-
+        #filtra os dados da consulta geral acima
         if obra_id:
             diarios = diarios.filter(obra_id=obra_id)
         if data_inicio:
@@ -284,36 +293,78 @@ def controle_diarios(request):
 
 @login_required
 def cadastra_diario(request):
+    '''
+    Gera o formulário de cadastro do diário como site.
+    Se receber GET envia o formulário para registro,
+    se receber POST procede com os métodos de cadastro.
+    '''
     if request.method == "POST":
-        diario_form = DiarioForm(request.POST)
-        servicos_form = ServicosForm(request.POST, prefix="servicos")
-        efetivo_formset = EfetivoDiretoFormSet(request.POST, prefix="efetivo_direto")
+        diario_form = Diario_Form(request.POST)
+        servicos_form = Servicos_Form(request.POST, prefix="servicos")
+        # efetivo_formset = Efetivo_Direto_FormSet(request.POST, prefix="efetivo_direto")
     
     elif request.method == "GET":
         #monta form do básico do diário
-        form = DiarioForm()
+        form = Diario_Form()
+
         #monta o form dos serviços
+        #este bloco cria o formset para ter vários campos
+        ServicoFormSet = modelformset_factory(
+            Servicos,
+            form=Servicos_Form,
+            extra=1,           # começa com 1 formulário visível
+            max_num=14,        # limita a 14 serviços (máximo que o relatorio pdf comporta)
+            can_delete=True    # permite exclusão
+        )
+        #instancia o formset que será enviado para o template
         formset_servicos = ServicoFormSet(queryset=Servicos.objects.all())
-        #monta o form do efetivo direto
+
+        #monta o form do efetivo direto usando formset para colocar todos os registros
+        #o formset aceita acrescentar mais funções conforme necessidade
+        
+        #consulta todas funções padrão cadastradas
         padroes_efetivo_direto = Efetivo_Direto_Padrao.objects.all()
+
+        #cria o formset do mesmo jeito do serviços
+        EfetivoDiretoFormSet = modelformset_factory(
+            Efetivo_Direto,
+            form=Efetivo_Direto_Form,
+            extra=padroes_efetivo_direto.count() #número de campos é igual a qtde de registros
+        )   
+        
+        #diferente do serviços, há funções registradas. Por isso cria um initial para preenche-las
         initial_data_direto = [
             {"funcao": pd.funcao, "qtde": pd.qtde, "presente": pd.presente}
             for pd in padroes_efetivo_direto
         ]
-
+        
+        #cria o formset com os dados iniciais, essa variável é enviada para o template
         efetivo_direto_formset = EfetivoDiretoFormSet(
             queryset=Efetivo_Direto.objects.none(),
             initial=initial_data_direto,
             prefix="efetivo_direto"
         )
 
-        #monta o form do efetivo indireto
+        #monta o form do efetivo INdireto usando formset para colocar todos os registros
+        #o formset aceita acrescentar mais funções conforme necessidade
+
+        #consulta todas funções padrão cadastradas
         padroes_efetivo_indireto = Efetivo_Indireto_Padrao.objects.all()
+
+        #cria o formset do mesmo jeito do serviços
+        EfetivoIndiretoFormSet = modelformset_factory(
+            Efetivo_Indireto,
+            Efetivo_Indireto_Form,
+            extra=padroes_efetivo_direto.count() #número de campos é igual a qtde de registros
+        )
+
+        #diferente do serviços, há funções registradas. Por isso cria um initial para preenche-las
         initial_data_indireto = [
             {"funcao": pi.funcao, "efetivo": pi.efetivo}
             for pi in padroes_efetivo_indireto
         ]
-
+        
+        #cria o formset com os dados iniciais, essa variável é enviada para o template
         efetivo_indireto_formset = EfetivoIndiretoFormSet(
             queryset=Efetivo_Indireto.objects.none(),
             initial=initial_data_indireto,
@@ -326,9 +377,11 @@ def cadastra_diario(request):
         {
             "form": form,
             "formset_servicos": formset_servicos,
-            "formset_efetivo_direto": efetivo_direto_formset,
-            "formset_efetivo_indireto": efetivo_indireto_formset,
-            "padroes_direto": padroes_efetivo_direto,
-            "padroes_indireto": padroes_efetivo_indireto,  # para exibição inicial (somente leitura)
+            "padroes_direto": padroes_efetivo_direto,           #exibição do que há cadastrado
+            "formset_efetivo_direto": efetivo_direto_formset,   #possibilidade de add ou editar o cadastro 
+            "padroes_indireto": padroes_efetivo_indireto,       #exibição do que há cadastrado
+            "formset_efetivo_indireto": efetivo_indireto_formset, #possibilidade de add ou editar o cadastro
+
+            
         },
     )

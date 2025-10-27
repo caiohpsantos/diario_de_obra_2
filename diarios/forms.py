@@ -1,12 +1,12 @@
 from datetime import date
 from django import forms
-from django.forms import modelformset_factory
+
 from .models import Diarios, ServicosPadrao, Servicos, Efetivo_Direto, Efetivo_Direto_Padrao
 from .models import Efetivo_Indireto, Efetivo_Indireto_Padrao
 from fotos.models import Fotos
 from contratos.models import Contratos
 
-class DiarioForm(forms.ModelForm):
+class Diario_Form(forms.ModelForm):
     '''
     Classe responsável pela criação do formulário de cadastro de um novo diário.
     Campos: contrato, obra, data, clima(manha,tarde,noite,madrugada) e observações
@@ -80,7 +80,7 @@ class DiarioForm(forms.ModelForm):
         input_formats = {
         "dia": ["%Y-%m-%d"]}
 
-class ServicosForm(forms.ModelForm):
+class Servicos_Form(forms.ModelForm):
     '''
     Classe responsável por gerar o formulário de registro dos serviços prestados
     Campos: servico_padrao_id, item e referencia(descrição mais detalhada da execução ou local)
@@ -100,16 +100,7 @@ class ServicosForm(forms.ModelForm):
             "referencia": "Referência",
         }
 
-#form set do Serviços para criar vários campos pois podem haver vários serviços executados
-ServicoFormSet = modelformset_factory(
-    Servicos,
-    form=ServicosForm,
-    extra=1,           # começa com 1 formulário visível
-    max_num=14,
-    can_delete=True    # permite exclusão
-)
-
-class EfetivoDiretoForm(forms.ModelForm):
+class Efetivo_Direto_Form(forms.ModelForm):
     '''
     Cria o formulário de registro do Efetivo direto para os diários
     Campos: funcao, qtde e presente
@@ -124,14 +115,7 @@ class EfetivoDiretoForm(forms.ModelForm):
             "presente": forms.NumberInput(attrs={"class": "form-control form-control-sm", "min": 0})
         }
 
-# Formset (permite múltiplos registros de efetivo direto por diário)
-EfetivoDiretoFormSet = modelformset_factory(
-    Efetivo_Direto,
-    form=EfetivoDiretoForm,
-    extra=int(Efetivo_Direto_Padrao.objects.all().count())
-)
-
-class EfetivoIndiretoForm(forms.ModelForm):
+class Efetivo_Indireto_Form(forms.ModelForm):
     '''
     Classe responsável por gerar formulário de cadastro do efetivo indireto
     campos: função e efetivo
@@ -144,8 +128,3 @@ class EfetivoIndiretoForm(forms.ModelForm):
             "efetivo": forms.NumberInput(attrs={"class": "form-control form-control-sm", "min": 0})
         }
 
-EfetivoIndiretoFormSet = modelformset_factory(
-    Efetivo_Indireto,
-    EfetivoIndiretoForm,
-    extra=int(Efetivo_Indireto_Padrao.objects.all().count())
-)

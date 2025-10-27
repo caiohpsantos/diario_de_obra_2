@@ -1,4 +1,5 @@
 from django import forms
+from leaflet.forms.widgets import LeafletWidget
 from .models import Obras
 from contratos.models import Contratos
 
@@ -19,6 +20,7 @@ class formCadastraObra(forms.ModelForm):
             "empresa_responsavel": forms.TextInput(attrs={"class": "form-control"}),
             "situacao": forms.Select(attrs={"class": "form-select"}), #dropdown de situações
             "contrato": forms.Select(attrs={"class": "form-select"}),  # dropdown de contratos
+            "area": LeafletWidget()
         }
         input_formats = {
         "inicio": ["%Y-%m-%d"],
@@ -50,6 +52,7 @@ class formEditaObra(forms.ModelForm):
             "empresa_responsavel": forms.TextInput(attrs={"class": "form-control"}),
             "situacao": forms.Select(attrs={"class": "form-select"}), #dropdown de situações
             "contrato": forms.Select(attrs={"class": "form-select"}),  # dropdown de contratos
+            "area": LeafletWidget()
         }
         input_formats = {
         "inicio": ["%Y-%m-%d"],
