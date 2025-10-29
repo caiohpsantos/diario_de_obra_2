@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% load leaflet_tags %}
 
 {% block cabecalho %}
-    {% leaflet_js %}
-    {% leaflet_css %}
+    <!-- CSS do Leaflet e Leaflet Draw -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
 {% endblock %}
 
 {% block conteudo %}
@@ -18,7 +18,7 @@
                     <form method="post" action="{% url 'cadastra_obra' 0 %}">
                         {% csrf_token %}
 
-                         <div class="row">
+                        <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="id_situacao" class="form-label">Situação</label>
                                 {{ form.situacao }}
@@ -32,7 +32,7 @@
                         <div class="mb-3">
                             <label for="id_nome" class="form-label">Nome da Obra</label>
                             {{ form.nome }}
-                             {% if form.nome.errors %}
+                            {% if form.nome.errors %}
                                 <div class="text-danger small">
                                     {{ form.nome.errors }}
                                 </div>
@@ -62,12 +62,10 @@
 
                         <!-- Campo do mapa -->
                         <div class="mb-4">
-                            <label for="id_area" class="form-label fw-bold">Área da Obra (Desenhe no mapa)</label>
-                            <p class="text-muted small mb-2">
-                                Use as ferramentas do mapa abaixo para desenhar o limite da obra.
-                            </p>
-                            {{ form.area }}
-                            {{ form.media }}
+                            <h5 class="mt-4">Área da Obra</h5>
+                            <p class="text-muted small">Desenhe no mapa o limite da obra:</p>
+                            <div id="map" style="height: 500px;"></div>
+                            <input type="hidden" id="id_area" name="area" />
                         </div>
 
                         <div class="d-flex justify-content-between">
@@ -84,4 +82,57 @@
         </div>
     </div>
 </div>
+
+<!-- Scripts do Leaflet e Leaflet Draw (somente uma vez, no final da página para performance) -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const map = L.map("map").setView([-16.6786, -49.2539], 13); //cordenadas centro de Goiânia
+
+    // Tile gratuito do OpenStreetMap
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
+
+    const drawControl = new L.Control.Draw({
+        draw: {
+            polygon: true,
+            polyline: false,
+            rectangle: false,
+            circle: false,
+            marker: false,
+            circlemarker: false
+        },
+        edit: {
+            featureGroup: drawnItems
+        }
+    });
+    map.addControl(drawControl);
+
+    // Quando desenhar uma nova área
+    map.on(L.Draw.Event.CREATED, e => {
+        drawnItems.clearLayers(); // remove anterior
+        const layer = e.layer;
+        drawnItems.addLayer(layer);
+
+        const geojson = layer.toGeoJSON();
+        document.getElementById("id_area").value = JSON.stringify(geojson.geometry);
+        
+    });
+
+    // Quando editar uma área existente
+    map.on(L.Draw.Event.EDITED, () => {
+        const layer = drawnItems.getLayers()[0];
+        if (layer) {
+            const geojson = layer.toGeoJSON();
+            document.getElementById("id_area").value = JSON.stringify(geojson.geometry);
+        }
+    });
+});
+</script>
 {% endblock %}

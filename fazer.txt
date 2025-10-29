@@ -1,0 +1,2 @@
+nas configurações colocar opção para o usuário colocar a localização inicial do mapa
+colocar o leaflet para importar localmente no cadastro e edição de obras

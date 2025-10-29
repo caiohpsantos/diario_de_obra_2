@@ -1,5 +1,6 @@
+import json
 from django import forms
-from leaflet.forms.widgets import LeafletWidget
+from django.contrib.gis.geos import GEOSGeometry
 from .models import Obras
 from contratos.models import Contratos
 
@@ -11,7 +12,8 @@ class formCadastraObra(forms.ModelForm):
     '''
     class Meta:
         model = Obras
-        fields = ['situacao', "contrato", "nome", "local", "inicio", "termino", "empresa_responsavel"]
+        area = forms.CharField(widget=forms.HiddenInput(), required=False)
+        fields = ['situacao', "contrato", "nome", "local", "inicio", "termino", "empresa_responsavel","area"]
         widgets = {
             "inicio": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date", "class": "form-control"}),
             "termino": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date", "class": "form-control"}),
@@ -20,7 +22,7 @@ class formCadastraObra(forms.ModelForm):
             "empresa_responsavel": forms.TextInput(attrs={"class": "form-control"}),
             "situacao": forms.Select(attrs={"class": "form-select"}), #dropdown de situações
             "contrato": forms.Select(attrs={"class": "form-select"}),  # dropdown de contratos
-            "area": LeafletWidget()
+            
         }
         input_formats = {
         "inicio": ["%Y-%m-%d"],
@@ -35,6 +37,16 @@ class formCadastraObra(forms.ModelForm):
         if Obras.objects.filter(nome=nome).exists():
             raise forms.ValidationError("Este nome de obra já está em uso.")
         return nome
+    
+    def clean_area(self):
+        data = self.cleaned_data.get("area")
+        if data:
+            try:
+                geom = GEOSGeometry(data)
+                return geom
+            except Exception as e:
+                raise forms.ValidationError(f"Erro ao converter geometria: {e}")
+        return None
     
 class formEditaObra(forms.ModelForm):
     '''
@@ -52,7 +64,7 @@ class formEditaObra(forms.ModelForm):
             "empresa_responsavel": forms.TextInput(attrs={"class": "form-control"}),
             "situacao": forms.Select(attrs={"class": "form-select"}), #dropdown de situações
             "contrato": forms.Select(attrs={"class": "form-select"}),  # dropdown de contratos
-            "area": LeafletWidget()
+            
         }
         input_formats = {
         "inicio": ["%Y-%m-%d"],
