@@ -2,6 +2,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.gis.geos import GEOSGeometry
 #importação de models usados 
 from utils.models import Historico_Edicao
 from contratos.models import Contratos
@@ -43,34 +44,55 @@ def controle_obras(request):
 
 @login_required
 def cadastra_obra(request, contrato_id):
+
     '''
     Gera e processa o formulário de cadastrar obra
     '''
     if request.method == 'GET':
-        if contrato_id > 0:
-            contrato = get_object_or_404(Contratos, id=contrato_id)
-        else:
-            contrato = None
+        contrato = get_object_or_404(Contratos, id=contrato_id) if contrato_id and contrato_id > 0 else None
+        form = formCadastraObra(initial={'contrato': contrato})
 
-        form = formCadastraObra(initial = {'contrato':contrato})
-    
-    if request.method == 'POST':
+    elif request.method == 'POST':
         form = formCadastraObra(request.POST)
         if form.is_valid():
-            obra = form.save()
-             #realiza o registro no Historico de Edições
-            registro = Historico_Edicao(
-                tipo="obra",
-                tipo_id=obra.id,
-                descricao_alteracao = f"Criação do registro",
-                usuario = request.user
-            )
-            registro.save()
-            messages.add_message(request, messages.constants.SUCCESS, f"{obra} cadastrada com sucesso!")
-            return redirect('controle_obras')
-            
-    
-    return render(request, 'cadastra_obra.html', {'form':form})
+            try:
+                # form.clean_area já retorna GEOSGeometry ou None
+                obra = form.save(commit=False)
+                area_geom = form.cleaned_data.get("area")
+                if area_geom is not None:
+                    # se por algum acaso retornou string (defensivo), converte:
+                    if isinstance(area_geom, str):
+                        area_geom = GEOSGeometry(area_geom)
+                    # garante SRID 4326
+                    if getattr(area_geom, "srid", None) is None:
+                        area_geom.srid = 4326
+                    elif area_geom.srid != 4326:
+                        area_geom.transform(4326)
+                    obra.area = area_geom
+                else:
+                    obra.area = None
+
+                obra.save()
+
+                # registro historico
+                Historico_Edicao.objects.create(
+                    tipo="obra",
+                    tipo_id=obra.id,
+                    descricao_alteracao="Criação do registro",
+                    usuario=request.user
+                )
+
+                messages.success(request, f"{obra} cadastrada com sucesso!")
+                return redirect('controle_obras')
+            except Exception as e:
+                # registramos o erro e deixamos o form reexibir com mensagens
+                messages.error(request, f"Erro ao salvar obra: {e}")
+                import traceback; traceback.print_exc()
+        else:
+            # form inválido: irá mostrar erros no template
+            messages.error(request, "Formulário inválido. Verifique os campos destacados.")
+
+    return render(request, 'cadastra_obra.html', {'form': form})
 
 @login_required
 def visualiza_obra(request, id):
@@ -90,85 +112,62 @@ def visualiza_obra(request, id):
 
 @login_required
 def edita_obra(request, id):
-    '''
-    Responsável pela criação do formulário e processamento da edição de obras
-    '''
     obra = get_object_or_404(Obras, id=id)
-    #Caso o request seja GET monta o formulário com os dados cadastrados
-    if request.method == 'GET':
+
+    if request.method == "GET":
         form = formEditaObra(instance=obra)
 
-    #Caso o request seja POT valida o formulário, procura por alterações para registro
-    #e atualiza os novos dados
-    if request.method == 'POST':
+    elif request.method == "POST":
         form = formEditaObra(request.POST, instance=obra)
-        
-        nome_antigo = obra.nome
-        local_antigo = obra.local
-        inicio_antigo = obra.inicio
-        termino_antigo = obra.termino
-        situacao_antiga = obra.situacao
-        contrato_antigo = obra.contrato
-        empresa_antiga = obra.empresa_responsavel
+
+        # Campos antigos para histórico
+        campos_antigos = {
+            "nome": obra.nome,
+            "local": obra.local,
+            "inicio": obra.inicio,
+            "termino": obra.termino,
+            "situacao": obra.situacao,
+            "contrato": obra.contrato,
+            "empresa_responsavel": obra.empresa_responsavel,
+            "area": obra.area,
+        }
 
         if form.is_valid():
-
-            #Descobre qual campo foi alterado e gera a mensagem de alteração para o histórico
             alteracoes = {}
-            
-            if nome_antigo != form.cleaned_data['nome']:
-                alteracoes['nome'] = f"Foi alterado o campo Nome. De {nome_antigo} para {form.cleaned_data['nome']}."
-            if local_antigo != form.cleaned_data['local']:
-                alteracoes['local'] = f"Foi alterado o campo Local. De {local_antigo} para {form.cleaned_data['local']}."
-            novo_inicio = form.cleaned_data['inicio']
-            if inicio_antigo != novo_inicio and novo_inicio:
-                alteracoes['inicio'] = f"Foi alterado o campo Data de Início. De {inicio_antigo.strftime('%d/%m/%Y')} para {novo_inicio.strftime('%d/%m/%Y')}."
-            novo_termino = form.cleaned_data['termino']
-            if termino_antigo != novo_termino and novo_termino:
-                alteracoes['termino'] = f"Foi alterado o campo Previsão de Término. De {termino_antigo.strftime('%d/%m/%Y')} para {novo_termino.strftime('%d/%m/%Y')}."
-            nova_situacao = form.cleaned_data['situacao']
-            if situacao_antiga != nova_situacao:
-                alteracoes['situacao'] = f"Foi alterado o campo Situação. De {situacao_antiga} para {dict(Obras.SITUACAO_CHOICES)[nova_situacao]}."
-            if contrato_antigo != form.cleaned_data['contrato']:
-                alteracoes['contrato'] = f"Foi alterado o campo Contrato. De {contrato_antigo} para {form.cleaned_data['contrato']}."
-            if empresa_antiga != form.cleaned_data['empresa_responsavel']:
-                alteracoes['empresa_responsavel'] = f"Foi alterado o campo Empresa Responsável. De {empresa_antiga} para {form.cleaned_data['empresa_responsavel']}."
-            
-             #Caso alteracoes tenha algum registro, itera sobre eles e salva todos em 'Historico_Edicao'
-            if len(alteracoes.items()) > 0:
-                alteracoes_texto = " | ".join(alteracoes.values())
-                for campo, descricao in alteracoes.items():
+            for campo, valor_antigo in campos_antigos.items():
+                novo_valor = form.cleaned_data.get(campo)
+                if campo in ["inicio", "termino"]:
+                    if valor_antigo != novo_valor and novo_valor:
+                        alteracoes[campo] = f"Campo {campo} alterado de {valor_antigo.strftime('%d/%m/%Y') if valor_antigo else 'vazio'} para {novo_valor.strftime('%d/%m/%Y')}."
+                elif campo == "situacao":
+                    if valor_antigo != novo_valor:
+                        alteracoes[campo] = f"Campo Situação alterado de {dict(Obras.SITUACAO_CHOICES).get(valor_antigo)} para {dict(Obras.SITUACAO_CHOICES).get(novo_valor)}."
+                elif campo == "area":
+                    if valor_antigo != novo_valor:
+                        alteracoes[campo] = "Campo Área da Obra alterado. Demarcações sofreram mudanças."
+                else:
+                    if valor_antigo != novo_valor:
+                        alteracoes[campo] = f"Campo {campo} alterado de {valor_antigo} para {novo_valor}."
+
+            form.save()
+
+            if alteracoes:
+                texto = " | ".join(alteracoes.values())
+                for desc in alteracoes.values():
                     Historico_Edicao.objects.create(
-                        tipo = 'obra',
-                        tipo_id = obra.id,
-                        descricao_alteracao = descricao,
-                        usuario = request.user
+                        tipo="obra",
+                        tipo_id=obra.id,
+                        descricao_alteracao=desc,
+                        usuario=request.user,
                     )
-            
-                #Gera mensagens de sucessos para cada alteração realizada
-                messages.add_message(
-                                        request,
-                                        messages.SUCCESS,
-                                        f"{obra} foi alterada com sucesso. Alterações: {alteracoes_texto}"
-                                        )
-
-                #Substitui os dados para salvar a edição
-                # obra.nome = form.cleaned_data['nome']
-                # obra.local = form.cleaned_data['local']
-                # obra.inicio = form.cleaned_data['inicio']
-                # obra.termino = form.cleaned_data['termino']
-                # obra.contrato = form.cleaned_data['contrato']
-                # obra.empresa_responsavel = form.cleaned_data['empresa_responsavel']
-                form.save()
-
-                return redirect("controle_obras")
-        
+                messages.success(request, f"{obra} atualizada com sucesso. Alterações: {texto}")
             else:
-                messages.add_message(request, messages.constants.WARNING, f"Não foram detectadas alterações.")
-        else:
-            pass
-    
-    return render(request, 'edita_obra.html', {'form':form, 'obra':obra})
+                messages.warning(request, "Não foram detectadas alterações.")
+
+            return redirect("controle_obras")
+
+    return render(request, "edita_obra.html", {"form": form, "obra": obra})
+
 
 @login_required
 def exclui_obra(request, id):
@@ -187,3 +186,16 @@ def exclui_obra(request, id):
                              f"A obra {nome_obra} foi excluída com sucesso.")
         return redirect('controle_obras')
     
+@login_required
+def mapa_obra(request, id):
+    """
+    Exibe apenas o mapa da obra com a área.
+    """
+    obra = get_object_or_404(Obras, id=id)
+    area_wkt = obra.area.wkt if obra.area else None
+
+    context = {
+        'obra': obra,
+        'area_wkt': area_wkt
+    }
+    return render(request, 'mapa_obra.html', context)

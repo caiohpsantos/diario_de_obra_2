@@ -1,4 +1,14 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block cabecalho %}
+<link rel="stylesheet" href="{% static 'geral/css/leaflet.css' %}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+
+<script src="{% static 'geral/js/leaflet.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/wellknown@0.5.0/wellknown.js"></script>
+{% endblock %}
 
 {% block conteudo %}
 <div class="container mt-5">
@@ -12,6 +22,7 @@
                     <form method="post" action="{% url 'edita_obra' obra.id %}" novalidate>
                         {% csrf_token %}
 
+                        <!-- Campos do formulário -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="id_situacao" class="form-label fw-semibold">Situação</label>
@@ -70,6 +81,15 @@
                             {% endif %}
                         </div>
 
+                        <hr>
+
+                        <!-- Campo do mapa -->
+                        <div class="mb-3">
+                            <label class="form-label">Área da Obra</label>
+                            <div id="map" style="height: 400px; border-radius: 8px; border: 1px solid #ccc;"></div>
+                            <input type="hidden" name="area" id="id_area" value="{{ form.area.value|default:'' }}">
+                        </div>
+
                         <div class="d-flex justify-content-between mt-4">
                             <a href="{% url 'controle_obras' %}" class="btn btn-outline-secondary btn-sm">
                                 <i class="bi bi-arrow-left"></i> Voltar
@@ -84,4 +104,93 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const map = L.map('map');
+    const centroPadrao = [-16.6799, -49.255];
+    let drawnPolygon = null;
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const areaValue = document.getElementById('id_area').value;
+
+    function parseWKTPolygon(wkt) {
+        try {
+            const coords = wkt
+                .replace(/^POLYGON\s*\(\(/i, '')
+                .replace(/\)\)$/i, '')
+                .trim()
+                .split(',')
+                .map(pair => pair.trim().split(/\s+/).map(Number))
+                .filter(([lng, lat]) => !isNaN(lng) && !isNaN(lat))
+                .map(([lng, lat]) => [lat, lng]);
+            return coords;
+        } catch (e) {
+            console.warn('Erro ao converter WKT:', e);
+            return null;
+        }
+    }
+
+    if (areaValue) {
+        const coords = parseWKTPolygon(areaValue);
+        if (coords && coords.length > 0) {
+            drawnPolygon = L.polygon(coords, { color: 'blue' }).addTo(map);
+            map.fitBounds(drawnPolygon.getBounds(), { maxZoom: 17 });
+        } else {
+            map.setView(centroPadrao, 17);
+        }
+    } else {
+        map.setView(centroPadrao, 17);
+    }
+
+    const editGroup = drawnPolygon ? L.featureGroup([drawnPolygon]) : L.featureGroup();
+    map.addLayer(editGroup);
+
+    const drawControl = new L.Control.Draw({
+        draw: { polyline: false, rectangle: false, circle: false, marker: false, circlemarker: false, polygon: true },
+        edit: { featureGroup: editGroup }
+    });
+    map.addControl(drawControl);
+
+    // Função para garantir que o polígono esteja fechado
+    function coordsToWKT(coords) {
+        if (coords.length === 0) return '';
+        const first = coords[0];
+        const last = coords[coords.length - 1];
+        if (first.lat !== last.lat || first.lng !== last.lng) {
+            coords.push(first);
+        }
+        return coords.map(p => `${p.lng} ${p.lat}`).join(', ');
+    }
+
+    map.on(L.Draw.Event.CREATED, function (e) {
+        if (drawnPolygon) editGroup.removeLayer(drawnPolygon);
+        drawnPolygon = e.layer;
+        editGroup.addLayer(drawnPolygon);
+
+        const coords = drawnPolygon.getLatLngs()[0];
+        document.getElementById('id_area').value = `POLYGON ((${coordsToWKT(coords)}))`;
+        map.fitBounds(drawnPolygon.getBounds(), { maxZoom: 17 });
+    });
+
+    map.on(L.Draw.Event.EDITED, function (e) {
+        const layers = e.layers.getLayers();
+        if (layers.length > 0) {
+            const coords = layers[0].getLatLngs()[0];
+            document.getElementById('id_area').value = `POLYGON ((${coordsToWKT(coords)}))`;
+            map.fitBounds(layers[0].getBounds(), { maxZoom: 17 });
+        }
+    });
+
+    map.on(L.Draw.Event.DELETED, function (e) {
+        document.getElementById('id_area').value = '';
+        drawnPolygon = null;
+    });
+});
+</script>
+
 {% endblock %}

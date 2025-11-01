@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block cabecalho %}
+<link rel="stylesheet" href="{% static 'geral/css/leaflet.css' %}" />
+<script src="{% static 'geral/js/leaflet.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+{% endblock %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Visualizar Obra — {{ obra.nome }}</h2>
+    <div>
+      <a href="{% url 'visualiza_obra' obra.id %}" class="btn btn-outline-secondary btn-sm me-2" title="Mapa">
+        <i class="bi bi-arrow-counterclockwise"> Voltar </i>
+      </a>
+    </div>
+</div>
+<div class="container mt-4">
+    <div id="map" style="height: 500px; border-radius: 8px; border: 1px solid #ccc;"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const map = L.map('map');
+    const centroPadrao = [-16.6799, -49.255]; // fallback
+    let areaWKT = "{{ area_wkt|default:'' }}";
+    let drawnPolygon = null;
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    function parseWKTPolygon(wkt) {
+        if (!wkt) return null;
+        try {
+            return wkt.replace(/^POLYGON\s*\(\(/i, '').replace(/\)\)$/i, '')
+                .trim().split(',')
+                .map(pair => pair.trim().split(/\s+/).map(Number))
+                .map(([lng, lat]) => [lat, lng]);
+        } catch {
+            return null;
+        }
+    }
+
+    if (areaWKT) {
+        const coords = parseWKTPolygon(areaWKT);
+        if (coords && coords.length > 0) {
+            drawnPolygon = L.polygon(coords, { color: 'blue' }).addTo(map);
+            map.fitBounds(drawnPolygon.getBounds(), { maxZoom: 17 });
+        } else {
+            map.setView(centroPadrao, 17);
+        }
+    } else {
+        map.setView(centroPadrao, 17);
+    }
+});
+</script>
+{% endblock %}

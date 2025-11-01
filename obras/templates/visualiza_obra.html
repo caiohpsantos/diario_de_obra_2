@@ -6,10 +6,15 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">Visualizar Obra — {{ obra.nome }}</h2>
     <div>
+      <a href="{% url 'mapa_obra' obra.id %}" class="btn btn-outline-secondary btn-sm me-2" title="Mapa">
+        <i class="bi bi-geo-alt"> Mapa </i>
+      </a>
       <a href="{% url 'edita_obra' obra.id %}" class="btn btn-outline-secondary btn-sm me-2" title="Editar obra">
         <i class="bi bi-pencil-square"></i> Editar
       </a>
-      <a href="{% url 'controle_obras' %}" class="btn btn-outline-primary btn-sm">Voltar</a>
+      <a href="{% url 'controle_obras' %}" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-arrow-counterclockwise"> Voltar </i>
+      </a>
     </div>
   </div>
 
@@ -37,7 +42,13 @@
           <p class="mb-1"><strong>Período:</strong> {{ obra.inicio|date:"d/m/Y" }} → {{ obra.termino|date:"d/m/Y" }}</p>
           <p class="mb-1"><strong>Tempo Decorrido:</strong> {{ obra.tempo_obra }} ({{obra.tempo_obra_dias}} dias)</p>
           <p class="mb-1"><strong>Prazo de Entrega:</strong> {{ obra.prazo_entrega }} ({{obra.prazo_entrega_dias}} dias)</p>
-
+          <p class="mb-1"><strong>Marcada no mapa:</strong>
+            {% if obra.area %}
+            Sim
+            {% else %}
+            Não
+            {% endif %}
+          </p>
           <hr>
 
           <h6 class="mb-2">Ações rápidas</h6>
