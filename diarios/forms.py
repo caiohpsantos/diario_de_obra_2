@@ -128,3 +128,14 @@ class Efetivo_Indireto_Form(forms.ModelForm):
             "efetivo": forms.NumberInput(attrs={"class": "form-control form-control-sm", "min": 0})
         }
 
+class Foto_Form(forms.ModelForm):
+
+    class Meta:
+        model = Fotos
+        fields = ['arquivo', 'descricao', 'data_captura',]
+        widget={
+            "descricao": forms.TextInput(attrs = {"class": "form-control form-control-sm"}),
+            "data_captura":forms.DateInput(format="%Y-%m-%d", attrs={"type": "date", "class": "form-control",
+                                                            "value":date.today().strftime("%Y-%m-%d")}),
+            "arquivo": forms.ClearableFileInput(attrs={'class': 'form-control'})
+            }

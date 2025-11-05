@@ -1,15 +1,16 @@
-//Formata todos os campos de texto para que o usuário só digite em maiúsculo
-document.addEventListener('DOMContentLoaded', function () {
-    // Seleciona todos os campos de texto
-    var camposTexto = document.querySelectorAll('input[type="text"]');
+// Função que aplica o uppercase em todos os inputs de texto
+function aplicarUppercase(container = document) {
+  container.querySelectorAll("input[type='text']").forEach(input => {
+    // Evita duplicar listeners
+    input.removeEventListener("input", input._upperListener);
+    input._upperListener = () => { input.value = input.value.toUpperCase(); };
+    input.addEventListener("input", input._upperListener);
+  });
+}
 
-    // Adiciona um ouvinte de evento de entrada a cada campo de texto
-    camposTexto.forEach(function (campo) {
-        campo.addEventListener('input', function () {
-            // Converte o valor do campo para maiúsculas e atualiza o valor
-            this.value = this.value.toUpperCase();
-        });
-    });
+// Executa ao carregar a página
+document.addEventListener("DOMContentLoaded", () => {
+  aplicarUppercase();
 });
 
 //Formata todos os campos que tenham tel no id com expressões regulares

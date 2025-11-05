@@ -1,2 +1,4 @@
 nas configurações colocar opção para o usuário colocar a localização inicial do mapa
-colocar o leaflet para importar localmente no cadastro e edição de obras
+corrigir campo Ativo do contrato, ele não põe msg correta qdo campo está Ativo
+corrigir validaçao de alterações do campo Ativo do contrato, situação atual e antiga são as mesmas
+botão Novo Diário na visualização de obra inserir link

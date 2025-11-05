@@ -9,10 +9,11 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from .models import Diarios, ServicosPadrao, Servicos
 from .models import Efetivo_Direto, Efetivo_Direto_Padrao, Efetivo_Indireto, Efetivo_Indireto_Padrao
-from .forms import Diario_Form, Servicos_Form, Efetivo_Direto_Form, Efetivo_Indireto_Form
+from .forms import Diario_Form, Servicos_Form, Efetivo_Direto_Form, Efetivo_Indireto_Form, Foto_Form
 from utils.models import Historico_Edicao
 from contratos.models import Contratos
 from obras.models import Obras
+from fotos.models import Fotos
 
 
 
@@ -370,6 +371,16 @@ def cadastra_diario(request):
             initial=initial_data_indireto,
             prefix="efetivo_indireto"
         )
+
+        #cria o formset das fotos
+        FotoFormset = modelformset_factory(
+            Fotos,
+            form = Foto_Form,
+            extra=1,
+            can_delete=True
+        )
+
+        foto_formset = FotoFormset(queryset=Fotos.objects.none())
 
     return render(
         request,

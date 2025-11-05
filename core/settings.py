@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from django.contrib.messages import constants
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -29,7 +30,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     'crispy_bootstrap5',
-    'leaflet',
     "usuarios",
     "utils",
     "contratos",
@@ -124,8 +124,7 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'templates/static'),)
 STATIC_ROOT = os.path.join('static')
 
 #Armazenamento externo de arquivos de mídia (notas fiscais)
-# GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = 'templates\static\geral\chave_drive.json'
-# GOOGLE_DRIVE_STORAGE_MEDIA_ROOT = '/'
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
@@ -160,16 +159,4 @@ MESSAGE_TAGS = {
     constants.WARNING:"alert alert-warning"
 
 }
-
-#configuração do Leaflet
-LEAFLET_CONFIG = {
-    "DEFAULT_CENTER": (-16.40, -49.15),  # centro inicial (Goiânia-GO)
-    "DEFAULT_ZOOM": 4,
-    "MAX_ZOOM": 20,
-    "MIN_ZOOM": 3,
-    "SCALE": "metric",
-    "DRAW": True,
-    "RESET_VIEW": False,
-}
-
 

@@ -37,7 +37,7 @@ def caminho_foto(instance, filename):
     return caminho
 
 class Fotos(models.Model):
-    arquivo = models.ImageField(upload_to=caminho_foto)
+    arquivo = models.ImageField()
     descricao = models.CharField(max_length=255, blank=True)
     data_captura = models.DateTimeField(default=timezone.now)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
