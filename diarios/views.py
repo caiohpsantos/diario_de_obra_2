@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from .models import Diarios, ServicosPadrao, Servicos
 from .models import Efetivo_Direto, Efetivo_Direto_Padrao, Efetivo_Indireto, Efetivo_Indireto_Padrao
-from .forms import Diario_Form, Servicos_Form, Efetivo_Direto_Form, Efetivo_Indireto_Form, Foto_Form
+from .forms import Diario_Form, Servicos_Form, Efetivo_Direto_Form, Efetivo_Indireto_Form
 from utils.models import Historico_Edicao
 from contratos.models import Contratos
 from obras.models import Obras
@@ -299,40 +299,52 @@ def cadastra_diario(request):
     Se receber GET envia o formulário para registro,
     se receber POST procede com os métodos de cadastro.
     '''
-    if request.method == "POST":
-        diario_form = Diario_Form(request.POST)
-        servicos_form = Servicos_Form(request.POST, prefix="servicos")
-        # efetivo_formset = Efetivo_Direto_FormSet(request.POST, prefix="efetivo_direto")
-    
-    elif request.method == "GET":
-        #monta form do básico do diário
-        form = Diario_Form()
-
-        #monta o form dos serviços
-        #este bloco cria o formset para ter vários campos
-        ServicoFormSet = modelformset_factory(
+    #monta o formset dos serviços
+    Servico_FormSet = modelformset_factory(
             Servicos,
             form=Servicos_Form,
             extra=1,           # começa com 1 formulário visível
             max_num=14,        # limita a 14 serviços (máximo que o relatorio pdf comporta)
             can_delete=True    # permite exclusão
         )
-        #instancia o formset que será enviado para o template
-        formset_servicos = ServicoFormSet(queryset=Servicos.objects.all())
-
-        #monta o form do efetivo direto usando formset para colocar todos os registros
-        #o formset aceita acrescentar mais funções conforme necessidade
-        
-        #consulta todas funções padrão cadastradas
-        padroes_efetivo_direto = Efetivo_Direto_Padrao.objects.all()
-
-        #cria o formset do mesmo jeito do serviços
-        EfetivoDiretoFormSet = modelformset_factory(
+    #monta o formset do efetivo direto
+    #padroes sao enviados ao frontend para preencher os campos pré definidos
+    padroes_efetivo_direto = Efetivo_Direto_Padrao.objects.all() 
+    Efetivo_Direto_FormSet = modelformset_factory(
             Efetivo_Direto,
             form=Efetivo_Direto_Form,
             extra=padroes_efetivo_direto.count() #número de campos é igual a qtde de registros
-        )   
+        )
+    
+    #monta o form do efetivo INdireto
+    #padroes sao enviados ao frontend para preencher os campos pré definidos
+    padroes_efetivo_indireto = Efetivo_Indireto_Padrao.objects.all()
+    Efetivo_Indireto_FormSet = modelformset_factory(
+        Efetivo_Indireto,
+        Efetivo_Indireto_Form,
+        extra=padroes_efetivo_direto.count() #número de campos é igual a qtde de registros
+    )
+
+    #Caso o método seja POST, inicia o processo de cadastro diário
+    if request.method == "POST":
+        diario_form = Diario_Form(request.POST, request.FILES)
+        formset_servicos = Servicos_Form(request.POST, prefix="servicos")
+        formset_efetivo_direto = Efetivo_Direto_FormSet(request.POST, prefix="efetivo_direto")
+        formset_efetivo_indireto = Efetivo_Indireto_FormSet(request.POST, prefix="efetivo_indireto")
+
+        if diario_form.is_valid() and formset_servicos.is_valid() and formset_efetivo_direto.is_valid() and formset_efetivo_indireto.is_valid():
+            diario = diario_form.save()
+            
+
+    
+    elif request.method == "GET":
+        #monta form do básico do diário
+        form = Diario_Form()
+
+        #instancia o formset de serviços que será enviado para o template
+        servicos_formset = Servico_FormSet(queryset=Servicos.objects.all())  
         
+        #instancia o formset do efetivo direto
         #diferente do serviços, há funções registradas. Por isso cria um initial para preenche-las
         initial_data_direto = [
             {"funcao": pd.funcao, "qtde": pd.qtde, "presente": pd.presente}
@@ -340,23 +352,10 @@ def cadastra_diario(request):
         ]
         
         #cria o formset com os dados iniciais, essa variável é enviada para o template
-        efetivo_direto_formset = EfetivoDiretoFormSet(
+        efetivo_direto_formset = Efetivo_Direto_FormSet(
             queryset=Efetivo_Direto.objects.none(),
             initial=initial_data_direto,
             prefix="efetivo_direto"
-        )
-
-        #monta o form do efetivo INdireto usando formset para colocar todos os registros
-        #o formset aceita acrescentar mais funções conforme necessidade
-
-        #consulta todas funções padrão cadastradas
-        padroes_efetivo_indireto = Efetivo_Indireto_Padrao.objects.all()
-
-        #cria o formset do mesmo jeito do serviços
-        EfetivoIndiretoFormSet = modelformset_factory(
-            Efetivo_Indireto,
-            Efetivo_Indireto_Form,
-            extra=padroes_efetivo_direto.count() #número de campos é igual a qtde de registros
         )
 
         #diferente do serviços, há funções registradas. Por isso cria um initial para preenche-las
@@ -366,28 +365,18 @@ def cadastra_diario(request):
         ]
         
         #cria o formset com os dados iniciais, essa variável é enviada para o template
-        efetivo_indireto_formset = EfetivoIndiretoFormSet(
+        efetivo_indireto_formset = Efetivo_Indireto_FormSet(
             queryset=Efetivo_Indireto.objects.none(),
             initial=initial_data_indireto,
             prefix="efetivo_indireto"
         )
-
-        #cria o formset das fotos
-        FotoFormset = modelformset_factory(
-            Fotos,
-            form = Foto_Form,
-            extra=1,
-            can_delete=True
-        )
-
-        foto_formset = FotoFormset(queryset=Fotos.objects.none())
 
     return render(
         request,
         "cadastra_diario.html",
         {
             "form": form,
-            "formset_servicos": formset_servicos,
+            "formset_servicos": servicos_formset,
             "padroes_direto": padroes_efetivo_direto,           #exibição do que há cadastrado
             "formset_efetivo_direto": efetivo_direto_formset,   #possibilidade de add ou editar o cadastro 
             "padroes_indireto": padroes_efetivo_indireto,       #exibição do que há cadastrado

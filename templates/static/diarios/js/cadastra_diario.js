@@ -274,7 +274,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div class="card-body">
                         <input type="text" name="descricao_${index}" class="form-control mb-2" placeholder="Descrição">
                         <input type="datetime-local" name="data_${index}" class="form-control mb-2" value="${getSaoPauloDateTime()}">
-                        <button type="button" class="btn btn-sm btn-outline-danger remover-foto w-100">Remover</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger remover-foto w-100"><i class="bi bi-trash"> Remover </i></button>
                     </div>
                   </div>
                 `;

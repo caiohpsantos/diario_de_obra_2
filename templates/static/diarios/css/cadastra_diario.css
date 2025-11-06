@@ -1,0 +1,181 @@
+<style>
+/* 🎨 PALETA DE CORES */
+:root {
+  --cor-fundo: #2c2c2c; /* cinza-escuro principal */
+  --cor-card: #3a3a3a;  /* fundo dos cards */
+  --cor-texto: #f5f5f5; /* texto claro */
+  --cor-destaque: #c8d000; /* amarelo-esverdeado */
+  --cor-hover: #464646; /* leve contraste para hover */
+  --cor-borda: #555;
+  --cor-danger: #dc3545;
+  --cor-success: #3aa757;
+}
+
+/* 🎯 ESTILO GERAL */
+body {
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
+}
+
+h5, label, .card-header {
+  color: var(--cor-texto);
+}
+
+.form-label, .form-check-label {
+  color: var(--cor-texto);
+}
+
+/* 🔹 CARDS */
+.card {
+  background-color: var(--cor-card);
+  border: 1px solid var(--cor-borda);
+  border-radius: 10px;
+  transition: all 0.3s ease-in-out;
+}
+
+.card:hover {
+  background-color: var(--cor-hover);
+  box-shadow: 0 0 12px rgba(200, 208, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.card-header {
+  background-color: var(--cor-destaque) !important;
+  color: #2c2c2c !important;
+  border-bottom: none;
+}
+
+/* 🔹 INPUTS E SELECTS */
+.form-control, .form-select {
+  background-color: #444;
+  color: var(--cor-texto);
+  border: 1px solid var(--cor-borda);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--cor-destaque);
+  box-shadow: 0 0 0 0.2rem rgba(200, 208, 0, 0.25);
+  background-color: #555;
+  color: var(--cor-texto);
+}
+
+input[readonly], input[disabled] {
+  background-color: #555 !important;
+  color: #ccc !important;
+}
+
+/* 🔹 BOTÕES */
+.btn {
+  font-weight: 500;
+  transition: all 0.3s ease-in-out;
+}
+
+.btn-primary {
+  background-color: var(--cor-destaque);
+  border: none;
+  color: #2c2c2c;
+}
+
+.btn-primary:hover {
+  background-color: #e2e84b;
+  color: #1a1a1a;
+}
+
+.btn-success {
+  background-color: var(--cor-success);
+  border: none;
+}
+
+.btn-success:hover {
+  background-color: #46c76e;
+}
+
+.btn-outline-danger {
+  color: var(--cor-danger);
+  border-color: var(--cor-danger);
+}
+
+.btn-outline-danger:hover {
+  background-color: var(--cor-danger);
+  color: white;
+}
+
+/* 🔹 TABELAS */
+.table {
+  color: var(--cor-texto);
+  background-color: transparent;
+}
+
+.table th {
+  background-color: #444;
+  color: var(--cor-destaque);
+}
+
+.table td {
+  background-color: #3a3a3a;
+}
+
+.table-bordered td, .table-bordered th {
+  border-color: #555;
+}
+
+/* 🔹 FORM CHECK (RADIOS E CHECKBOX) */
+.form-check-input {
+  background-color: transparent;
+  border: 2px solid var(--cor-destaque);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.form-check-input:checked {
+  background-color: var(--cor-destaque);
+  border-color: var(--cor-destaque);
+}
+
+.form-check-label {
+  margin-left: 4px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.form-check-label:hover {
+  color: var(--cor-destaque);
+}
+
+/* 🔹 SEÇÕES INTERNAS (FORMULÁRIOS DENTRO DE CARDS) */
+.servico-form, .efetivo-form, .efetivo-indireto-form {
+  background-color: #2f2f2f !important;
+  border: 1px solid #4d4d4d;
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
+}
+
+.servico-form:hover, .efetivo-form:hover, .efetivo-indireto-form:hover {
+  background-color: #3d3d3d !important;
+  border-color: var(--cor-destaque);
+}
+
+/* 🔹 SCROLLBAR PERSONALIZADA */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #222;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--cor-destaque);
+  border-radius: 4px;
+}
+
+/* 🔹 BOTÃO FINAL */
+#diarioForm .btn-primary.btn-lg {
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 600;
+  transition: transform 0.2s ease-in-out;
+}
+
+#diarioForm .btn-primary.btn-lg:hover {
+  transform: translateY(-2px);
+}

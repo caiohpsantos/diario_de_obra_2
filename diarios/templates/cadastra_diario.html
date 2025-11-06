@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block conteudo %}
+
 <div class="container-fluid py-3">
   <form method="post" id="diarioForm" enctype="multipart/form-data">
     {% csrf_token %}
@@ -118,7 +119,7 @@
         </div>
 
         <div class="mt-3 text-end">
-          <button type="button" id="add-servico" class="btn btn-success btn-sm">
+          <button type="button" id="add-servico" class="btn btn-outline-success btn-sm">
             <i class="bi bi-plus-circle"></i> Adicionar Serviço
           </button>
         </div>
@@ -176,7 +177,7 @@
         </div>
 
         <div id="add-efetivo-direto-container" class="mt-2 text-end" style="display:none;">
-          <button type="button" id="add-efetivo-direto" class="btn btn-sm btn-success">
+          <button type="button" id="add-efetivo-direto" class="btn btn-sm btn-outline-success">
             <i class='bi bi-plus-circle'></i> Adicionar função
           </button>
         </div>
@@ -225,7 +226,7 @@
         </div>
 
         <div id="add-efetivo-indireto-container" class="mt-2 text-end" style="display:none;">
-          <button type="button" id="add-efetivo-indireto" class="btn btn-sm btn-success">
+          <button type="button" id="add-efetivo-indireto" class="btn btn-sm btn-outline-success">
             <i class='bi bi-plus-circle'></i> Adicionar função
           </button>
         </div>
