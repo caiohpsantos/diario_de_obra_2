@@ -385,3 +385,4 @@ def cadastra_diario(request):
             
         },
     )
+
