@@ -386,3 +386,13 @@ def cadastra_diario(request):
         },
     )
 
+@login_required
+def consulta_diario_ajax(request, id):
+    try:
+        consulta = Diarios.objects.filter(id=id).first()
+        if consulta:
+            return JsonResponse({'existe': True})
+        else:
+            return JsonResponse({'existe': False})
+    except Exception as e:
+        return JsonResponse({'erro': e})
